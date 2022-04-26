@@ -1,0 +1,67 @@
+{
+    "sampling": {
+        "chain number": 4,
+        "sample size": 500,
+        "burnin": 1,
+        "use groundtruth": false,
+        "keep only best chain": true,
+        "mu1<mu2": true
+    },
+
+    "synthetic generation": {
+        "remove disconnected vertices": false,
+        "hypergraph process": "independent hyperedges",
+        "hypergraph parameters": [0.001, 0.1],
+        "observation process": "poisson dominant hyperedge",
+        "observation parameters": [0.01, 10, 30]
+    },
+
+    "models": {
+        "phg": {
+            "hyperparameters": [1.1, 5, 1.1, 5, 1.05, 0.5, 1.05, 0.5, 1.05, 0.5],
+            "mh minimum iterations": 50000,
+            "mh maximum iterations": 5000000,
+            "window size": 20000,
+            "tolerance": 0.001,
+            "eta": 0.5,
+            "chi_0": 0.99,
+            "chi_1": 0.01,
+            "move probabilities": [0.4999, 0.4999, 0.0002]
+        },
+        "pes": {
+            "hyperparameters": [1.1, 5, 1.1, 5, 1.05, 0.5, 1.05, 0.5, 1.05, 0.5],
+            "mh minimum iterations": 50000,
+            "mh maximum iterations": 2000000,
+            "window size": 20000,
+            "tolerance": 0.001,
+            "eta": 0.5,
+            "move probabilities": [1]
+        },
+        "per": {
+            "hyperparameters": [1.1, 5, 1.1, 5, 1.05, 0.5, 1.05, 0.5, 1.05, 0.5],
+            "mh minimum iterations": 50000,
+            "mh maximum iterations": 2000000,
+            "window size": 20000,
+            "tolerance": 0.001,
+            "eta": 0.5,
+            "move probabilities": [1]
+        }
+    },
+
+    "metrics": {
+        "generated observations number": 200
+    },
+
+    "tendency": {
+        "varying mu1": {
+            "mu0": 0.01,
+            "mu1": [2, 5, 10, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 40, 42.5],
+            "mu2": 50
+        },
+        "varying mu2": {
+            "mu0": 0.01,
+            "mu1": 50,
+            "mu2": [2, 5, 10, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 40, 42.5]
+        }
+    }
+}
