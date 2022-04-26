@@ -1,0 +1,3 @@
+[submodule "grit/include/SamplableSet"]
+	path = grit/include/SamplableSet
+	url = git@github.com:gstonge/SamplableSet.git
