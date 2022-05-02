@@ -1,8 +1,47 @@
+#include <map>
 #include <vector>
 #include <pybind11/numpy.h>
 
 #include "GRIT/hypergraph.h"
 #include "GRIT/utility.h"
+
+
+static void addEdgeIfInexistent(size_t i, size_t j, std::map<std::pair<size_t, size_t>, bool>& edgeInTriangle) {
+    auto edge = std::make_pair(i, j);
+    if (!edgeInTriangle.count(edge))
+        edgeInTriangle[edge] = 1;
+}
+
+size_t countEdgesInTriangles(const py::array_t<size_t>& edgeTypes) {
+    py::buffer_info edgeTypesBuffer = edgeTypes.request();
+    size_t* L = (size_t*) edgeTypesBuffer.ptr;
+    size_t n = edgeTypesBuffer.shape[0];
+
+    std::map<std::pair<size_t, size_t>, bool> edgeInTriangle;
+    size_t Lij, Lik, Ljk;
+
+    for (size_t i=0; i<n; i++) {
+        for (size_t j=i+1; j<n; j++) {
+            Lij = L[i*n + j];
+            if (Lij == 0)
+                continue;
+
+            for (size_t k=j+1; k<n; k++) {
+                Lik = L[i*n + k];
+                Ljk = L[j*n + k];
+                if (Lik>0 && Ljk>0) {
+                    if (Lij==1)
+                        addEdgeIfInexistent(i, j, edgeInTriangle);
+                    if (Lik==1)
+                        addEdgeIfInexistent(i, k, edgeInTriangle);
+                    if (Ljk==1)
+                        addEdgeIfInexistent(j, k, edgeInTriangle);
+                }
+            }
+        }
+    }
+    return edgeInTriangle.size();
+}
 
 
 std::vector<size_t> getConfusionMatrix(const GRIT::Hypergraph& groundtruth, const py::array_t<size_t>& averageHyperedgeTypes, bool withCorrelation, bool edgetype_swapped) {

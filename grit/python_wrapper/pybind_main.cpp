@@ -148,6 +148,7 @@ PYBIND11_MODULE(pygrit, m)
     m.def("get_average_hypergraph", &getAverageHypergraph);
     m.def("get_average_hypergraph_edgestrength", &getAverageHypergraphEdgeStrength);
 
+    m.def("count_edges_in_triangles", &countEdgesInTriangles);
     m.def("get_confusion_matrix", &getConfusionMatrix, py::arg("groundtruth"), py::arg("average edge types"), py::arg("with_correlation")=false, py::arg("edge_types_swapped")=false);
     m.def("get_sum_residuals_of_types", &getSumOfResidualsOfTypes, py::arg("edge_types"), py::arg("observations1"), py::arg("observations2"));
     m.def("get_sum_absolute_residuals_of_types", &getSumOfAbsoluteResidualsOfTypes, py::arg("edge_types"), py::arg("observations1"), py::arg("observations2"));
