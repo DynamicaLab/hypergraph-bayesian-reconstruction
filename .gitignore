@@ -10,6 +10,7 @@ build/
 raw_data/
 tmp/
 
+compile_commands.json
 config/*/*.json
 !config/default.json
-compile_commands.json
+datasets/hypergraphs/
