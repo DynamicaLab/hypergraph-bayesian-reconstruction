@@ -5,7 +5,6 @@ from numpy.lib.function_base import percentile
 sys.path.append("../")
 from utils.config import ConfigurationParserWithModels, get_json, get_dataset_name, get_config
 from utils.output import get_output_directory_for, metrics_filename
-from modelling.models import models
 from generation.hypergraph_generation import load_binary_hypergraph
 
 os.chdir("../")
@@ -13,15 +12,16 @@ os.chdir("../")
 
 args = ConfigurationParserWithModels().parser.parse_args()
 config = get_config(args)
-inference_models = [models[model_name](config) for model_name in args.models]
 
 dataset_name = get_dataset_name(args)
 confusion_matrices = get_json( os.path.join(get_output_directory_for("data", dataset_name), metrics_filename) )
 
 for model_name in args.models:
-    print(model_name)
     summaries = []
     for matrix in confusion_matrices[model_name]:
-        summaries.append(np.sum(matrix) - np.trace(np.array(matrix).reshape(3, 3)))
-    print(summaries)
+        m = np.array(matrix).reshape(3, 3)
+        number_of_interactions = np.sum(m[1:])
+        summaries.append( (m[1, 2]+m[2, 1])/number_of_interactions )
 
+    percentiles = [25, 50, 75]
+    print(model_name, "quartiles", [f"{x:.3f}" for x in np.percentile(summaries, percentiles)])
