@@ -35,16 +35,17 @@ GRIT::Hypergraph removeDisconnectedVertices(const GRIT::Hypergraph& hypergraph) 
             newIndices[i] = previousNonEmptyVertex++;
 
     GRIT::Hypergraph filteredHypergraph(previousNonEmptyVertex);
-    for (size_t i=0; i<previousNonEmptyVertex; i++) {
-        for (auto _2neighbour: hypergraph.getEdgesFrom(i))
+    for (size_t i=0; i<hypergraph.getSize(); i++) {
+        for (auto& _2neighbour: hypergraph.getEdgesFrom(i))
             if (i<_2neighbour.first)
                 filteredHypergraph.addMultiedge(newIndices[i], newIndices[_2neighbour.first], _2neighbour.second);
 
-        for (auto first_3neighbour: hypergraph.getTrianglesFrom(i))
-            for (auto second_3neighbour: first_3neighbour.second)
-                if (i<first_3neighbour.first && first_3neighbour.first<second_3neighbour)
+        for (auto& first_3neighbour: hypergraph.getTrianglesFrom(i))
+            if (i < first_3neighbour.first)
+            for (auto& second_3neighbour: first_3neighbour.second)
+                if (first_3neighbour.first < second_3neighbour)
                     filteredHypergraph.addTriangle(
-                            {newIndices[i], newIndices[first_3neighbour.first], newIndices[second_3neighbour]});
+                        {newIndices[i], newIndices[first_3neighbour.first], newIndices[second_3neighbour]});
     }
     return filteredHypergraph;
 }
