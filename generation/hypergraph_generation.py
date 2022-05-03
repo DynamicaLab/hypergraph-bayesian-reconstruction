@@ -14,13 +14,13 @@ def load_binary_hypergraph(dataset_name):
         return pygrit.Hypergraph.load_from_binary(hypergraph_path)
 
 
-def load_csv_hypergraph(filename, remove_disconnected_vertices=False):
+def load_csv_hypergraph(filename, remove_disconnected_vertices=False, sep=", "):
     hypergraph = pygrit.Hypergraph(3)
 
     with open(filename, 'r') as file_stream:
 
         for line in file_stream.readlines():
-            vertices = [int(i) for i in line.split(' ')]
+            vertices = [int(i) for i in line.split(sep)]
 
             required_size = max(vertices)+1
             if required_size > hypergraph.get_size():
@@ -43,7 +43,8 @@ def write_hypergraph_to_binary(hypergraph, dataset_name):
 
 
 def transfer_hypergraph_data_to_binary(config, dataset_name):
-    hypergraph = load_csv_hypergraph(config["dataset"], config["synthetic generation", "remove disconnected vertices"])
+    hypergraph = load_csv_hypergraph(config["dataset"], config["synthetic generation", "remove disconnected vertices"],
+                                        sep=config["sep"])
     write_hypergraph_to_binary(hypergraph, dataset_name)
     return hypergraph
 
