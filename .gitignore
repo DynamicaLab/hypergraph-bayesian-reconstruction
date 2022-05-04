@@ -10,6 +10,7 @@ build/
 raw_data/
 tmp/
 
+*.sh
 figures/
 compile_commands.json
 config/*/*.json
