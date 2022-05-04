@@ -1,3 +1,7 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
+
 #include <vector>
 #include <list>
 #include <unordered_set>
@@ -5,7 +9,9 @@
 
 #include "GRIT/hypergraph.h"
 #include "GRIT/utility.h"
-#include <pybind11/numpy.h>
+
+
+namespace py = pybind11;
 
 
 double logSumExp(const std::array<double, 3>& y) {
@@ -266,4 +272,20 @@ size_t getGlobalHammingDistance(const GRIT::Hypergraph& hypergraph1, const GRIT:
         }
     }
     return hammingDistance;
+}
+
+
+void defineAdditionalUtils(py::module &m) {
+    m.def("get_neg_mixture_likelihood", &getNegMixtureLikelihood);
+    m.def("get_decreasing_ordered_pairs", &getDecreasingOrderedPairs);
+
+    m.def("get_edge_hamming_distance", &getEdgeHammingDistance);
+    m.def("get_global_hamming_distance", &getGlobalHammingDistance);
+
+    m.def("remove_disconnected_vertices", &removeDisconnectedVertices);
+    m.def("project_hypergraph_on_multigraph", &projectHypergraphOnMultigraph);
+    m.def("project_hypergraph_on_graph", &projectHypergraphOnGraph);
+    m.def("generate_hypergraph_from_adjacency", &generateHypergraphFromAdjacencyMatrix);
+    m.def("get_average_hypergraph", &getAverageHypergraph);
+    m.def("get_average_hypergraph_edgestrength", &getAverageHypergraphEdgeStrength);
 }

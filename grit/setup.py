@@ -32,7 +32,13 @@ ext_modules = [
             "include/SamplableSet/src",
             "python_wrapper"
         ],
-        sources=["python_wrapper/pybind_main.cpp",
+        sources=[
+            "python_wrapper/additional_utility.cpp",
+            "python_wrapper/hypergraph_generation.cpp",
+            "python_wrapper/metrics.cpp",
+            "python_wrapper/models.cpp",
+            "python_wrapper/observations_generation.cpp",
+            "python_wrapper/pybind_main.cpp",
 
             "src/utility.cpp",
             "src/trianglelist.cpp",

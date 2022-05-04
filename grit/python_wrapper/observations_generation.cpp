@@ -1,7 +1,13 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "GRIT/hypergraph.h"
 #include "GRIT/utility.h"
 
 #include <pybind11/numpy.h>
+
+
+namespace py = pybind11;
 
 
 py::array_t<size_t> generatePoissonObservations(const GRIT::Hypergraph& hypergraph, double mu0, double mu1, double mu2, bool withTriangles){
@@ -33,4 +39,8 @@ py::array_t<size_t> generatePoissonObservations(const GRIT::Hypergraph& hypergra
         }
     }
     return observations;
+}
+
+void defineRandomObservationsGeneration(py::module &m) {
+    m.def("generate_poisson_observations", &generatePoissonObservations);
 }

@@ -1,12 +1,18 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
+
 #include <map>
 #include <vector>
-#include <pybind11/numpy.h>
 
 #include "GRIT/hypergraph.h"
 #include "GRIT/utility.h"
 
 
-static void addEdgeIfInexistent(size_t i, size_t j, std::map<std::pair<size_t, size_t>, bool>& edgeInTriangle) {
+namespace py = pybind11;
+
+
+void addEdgeIfInexistent(size_t i, size_t j, std::map<std::pair<size_t, size_t>, bool>& edgeInTriangle) {
     auto edge = std::make_pair(i, j);
     if (!edgeInTriangle.count(edge))
         edgeInTriangle[edge] = 1;
@@ -119,4 +125,16 @@ std::array<double, 3> getSumOfAbsoluteResidualsOfTypes(const py::list& edgetypes
         }
 
     return residuals;
+}
+
+void defineMetrics(py::module &m) {
+    m.def("count_edges_in_triangles", &countEdgesInTriangles);
+
+    m.def("get_confusion_matrix", &getConfusionMatrix,
+            py::arg("groundtruth"), py::arg("average edge types"),
+            py::arg("with_correlation")=false, py::arg("edge_types_swapped")=false);
+    m.def("get_sum_residuals_of_types", &getSumOfResidualsOfTypes,
+            py::arg("edge_types"), py::arg("observations1"), py::arg("observations2"));
+    m.def("get_sum_absolute_residuals_of_types", &getSumOfAbsoluteResidualsOfTypes,
+            py::arg("edge_types"), py::arg("observations1"), py::arg("observations2"));
 }

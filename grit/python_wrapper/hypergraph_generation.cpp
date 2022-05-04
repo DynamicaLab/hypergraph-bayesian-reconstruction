@@ -1,7 +1,13 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "GRIT/utility.h"
 #include "GRIT/hypergraph.h"
 #include <list>
 #include <unordered_set>
+
+
+namespace py = pybind11;
 
 
 template<typename T>
@@ -357,4 +363,15 @@ static void addEdgesWithProbability(GRIT::Hypergraph& hypergraph, double p) {
         if (i<n)
             hypergraph.addEdge(i, j);
     }
+}
+
+
+void defineRandomHypergraphFunctions(py::module &m) {
+    m.def("generate_independent_hyperedges_hypergraph", &generateIndependentHyperedgesHypergraph);
+    m.def("generate_independent_layered_edges_hypergraph", &generateIndependentLayeredEdges);
+    m.def("generate_sbm_hypergraph", &generateSBMHypergraph);
+    m.def("generate_miller_cm_hypergraph_geometric", &generateMillerConfigurationModelHypergraphWithGeometricDistribution);
+    m.def("generate_beta_model_hypergraph_normal", &generateBetaModelHypergraphWithNormalDistributions);
+    m.def("generate_independent_hyperedges_only_cycles", &generateIndependentHyperedgeOnlyCycles);
+    m.def("generate_independent_hyperedges_no_cycles", &generateIndependentHyperedgeWithoutCycles);
 }
