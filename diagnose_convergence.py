@@ -3,7 +3,7 @@ import os
 
 from generation.hypergraph_generation import load_binary_hypergraph
 from generation.observations_generation import load_binary_observations
-from modelling.models import models, PHG
+from modeling.models import models, PHG
 from utils.config import ConfigurationParserWithModels, get_config, get_dataset_name
 from utils.output import create_output_directories, get_output_directory_for, prepare_diagnosis_directories, diagnosis_iteration_prefix
 

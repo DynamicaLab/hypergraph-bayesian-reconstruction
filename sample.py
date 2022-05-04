@@ -3,7 +3,7 @@ from warnings import warn
 from generation.hypergraph_generation import load_binary_hypergraph
 from generation.observations_generation import load_binary_observations
 from metrics import compute_and_save_all_metrics
-from modelling.models import models, PES, PHG
+from modeling.models import models, PES, PHG
 from utils.config import ConfigurationParserWithModels, get_config, get_dataset_name
 from utils.output import create_output_directories, get_output_directory_for
 

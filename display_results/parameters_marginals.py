@@ -5,7 +5,7 @@ from scipy import stats
 
 import plot_setup
 sys.path.append("../")
-from modelling.models import models
+from modeling.models import models
 from utils.config import ConfigurationParserWithModels, get_config, get_dataset_name
 from utils.output import get_output_directory_for, get_sample
 

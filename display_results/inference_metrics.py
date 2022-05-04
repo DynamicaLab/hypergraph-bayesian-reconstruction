@@ -8,7 +8,7 @@ sys.path.append("../")
 import metrics
 from utils.config import ConfigurationParserWithModels, get_json, get_dataset_name, get_config
 from utils.output import get_output_directory_for, metrics_filename
-from modelling.models import models
+from modeling.models import models
 from generation.observations_generation import load_binary_observations
 from generation.hypergraph_generation import load_binary_hypergraph
 import pygrit

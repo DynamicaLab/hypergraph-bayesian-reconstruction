@@ -7,7 +7,7 @@ import drawing
 sys.path.append("../")
 sys.path.append("../..")
 import plot_setup
-from modelling.models import models
+from modeling.models import models
 from utils.config import ConfigurationParserWithModels, get_config, get_dataset_name
 from utils.output import get_output_directory_for, metrics_filename, get_sample_files, get_map_estimator
 from generation.hypergraph_generation import load_binary_hypergraph

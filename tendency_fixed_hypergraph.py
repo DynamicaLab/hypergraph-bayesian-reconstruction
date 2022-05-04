@@ -6,7 +6,7 @@ from mpi4py import MPI
 from generation.hypergraph_generation import load_binary_hypergraph
 from generation.observations_generation import generate_observations
 from metrics import compute_and_save_tendency_metrics
-from modelling.models import models, PES, PHG
+from modeling.models import models, PES, PHG
 from utils.config import ConfigurationParserWithModels, get_config, get_dataset_name
 from utils.output import create_output_directories, get_tendency_sampling_directory, observations_filename,\
                             make_sample_a_tarball, remove_current_sample_tarballs
