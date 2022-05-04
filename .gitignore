@@ -10,6 +10,7 @@ build/
 raw_data/
 tmp/
 
+figures/
 compile_commands.json
 config/*/*.json
 !config/default.json
