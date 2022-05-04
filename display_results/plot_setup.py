@@ -53,4 +53,4 @@ edgetype_colors = [midblack, green, yellow]
 edgetype_markers = ["x", ".", "^"]
 edgetype_ls = ["--", "-", ":"]
 
-get_figure_dir = lambda dataset: os.path.join(os.getcwd(), "..", "..", "figures", dataset)
+get_figure_dir = lambda dataset: os.path.join(os.getcwd(), "figures", dataset)

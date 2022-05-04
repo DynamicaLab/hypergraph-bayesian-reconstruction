@@ -88,41 +88,47 @@ for model_name in args.models:
                 continue
 
             if aggregated_metrics is None:
-                aggregated_metrics = { key: [] for key in list(model_metrics.keys())+["class entropy"] }
+                aggregated_metrics = { key: [] for key in list(model_metrics.keys())+["class entropy", "confusion summary"] }
                 metric_names.update(model_metrics.keys())
                 metric_names.add("class entropy")
+                metric_names.add("confusion summary")
 
             for metric_name, metric_values in model_metrics.items():
-                if metric_name != metrics.PairwiseObservationsAverage.name:
-                    if metric_name == metrics.ConfusionMatrix.name:
-                        corrected_metric = np.copy( np.array(metric_values[0]).reshape(3, 3) )
-                        # swap columns 2 and 3 if multiplex model predicts no strong edge
-                        if np.sum(corrected_metric[:, 2]) == 0 and model_name=="pes":
-                            corrected_metric.T[[1, 2]] = corrected_metric.T[[2, 1]]
+                if metric_name == metrics.PairwiseObservationsAverage.name:
+                    continue
 
-                        aggregated_metrics[metric_name].append(corrected_metric.flatten())
-                        class_proportions = np.sum(corrected_metric, axis=0).astype(np.double)
-                        class_proportions = class_proportions[class_proportions>0]
-                        class_proportions /= np.sum(class_proportions)
-                        aggregated_metrics["class entropy"].append(np.sum(-class_proportions*np.log(class_proportions)/np.log(3)))
+                if metric_name == metrics.ConfusionMatrix.name:
+                    corrected_metric = np.copy( np.array(metric_values[0]).reshape(3, 3) )
+                    # swap columns 2 and 3 if multiplex model predicts no strong edge
+                    if np.sum(corrected_metric[:, 2]) == 0 and model_name=="pes":
+                        corrected_metric.T[[1, 2]] = corrected_metric.T[[2, 1]]
 
-                        if confusion_matrix_normalization is None:
-                            edgetype_count = np.sum(corrected_metric, axis=1)
-                            confusion_matrix_proportions = edgetype_count/np.sum(edgetype_count)
-                            confusion_matrix_normalization = np.diag(edgetype_count)
-                            for i, j in [(0, 1), (0, 2), (1, 2)]:
-                                confusion_matrix_normalization[i, j] = edgetype_count[i] + edgetype_count[j]
-                                confusion_matrix_normalization[j, i] = edgetype_count[i] + edgetype_count[j]
-                            confusion_matrix_normalization = confusion_matrix_normalization
+                    aggregated_metrics[metric_name].append(corrected_metric.ravel())
+                    class_proportions = np.sum(corrected_metric, axis=0).astype(np.double)
+                    class_proportions = class_proportions[class_proportions>0]
+                    class_proportions /= np.sum(class_proportions)
+                    aggregated_metrics["class entropy"].append(np.sum(-class_proportions*np.log(class_proportions)/np.log(3)))
 
-                    elif metric_name == metrics.SumAbsoluteResiduals.name:
-                        aggregated_metrics[metric_name].append(metric_values/observations_sum)
-                    else:
-                        aggregated_metrics[metric_name].append(metric_values)
+                    aggregated_metrics["confusion summary"].append( (corrected_metric[1, 2]+corrected_metric[2, 1]) / np.sum(corrected_metric[1:, 1:]) )
+
+                    if confusion_matrix_normalization is None:
+                        edgetype_count = np.sum(corrected_metric, axis=1)
+                        confusion_matrix_proportions = edgetype_count/np.sum(edgetype_count)
+                        confusion_matrix_normalization = np.diag(edgetype_count)
+                        for i, j in [(0, 1), (0, 2), (1, 2)]:
+                            confusion_matrix_normalization[i, j] = edgetype_count[i] + edgetype_count[j]
+                            confusion_matrix_normalization[j, i] = edgetype_count[i] + edgetype_count[j]
+                        confusion_matrix_normalization = confusion_matrix_normalization
+
+                elif metric_name == metrics.SumAbsoluteResiduals.name:
+                    aggregated_metrics[metric_name].append(metric_values/observations_sum)
+                else:
+                    aggregated_metrics[metric_name].append(metric_values)
 
         if aggregated_metrics is None:
             values_without_metrics.append(parameter_value)
             continue
+
         for metric_name, metric_values in aggregated_metrics.items():
             if metric_name == metrics.PairwiseObservationsAverage.name:
                 continue
@@ -132,7 +138,7 @@ for model_name in args.models:
             metric_statistics = statistics[model_name][metric_name]
 
             if metric_name not in [metrics.ConfusionMatrix.name, metrics.SumAbsoluteResiduals.name, metrics.SumResiduals.name]:
-                metric_values = np.array(metric_values).flatten()
+                metric_values = np.array(metric_values).ravel()
 
             if metric_name in [metrics.SumAbsoluteResiduals.name, metrics.SumResiduals.name]:
                 axis=(0, 2)
@@ -144,6 +150,7 @@ for model_name in args.models:
 
             for centile, val in zip(percentiles, np.percentile(metric_values, percentiles*100, axis=axis)):
                 metric_statistics["centile"+str(centile)].append( val )
+
 for parameter_value in parameter_values.copy():
     if values_without_metrics.count(parameter_value) == len(args.models):
         parameter_values.remove(parameter_value)
@@ -194,7 +201,7 @@ for metric_name in metric_names:
         color = plot_setup.model_colors[model_name]
 
         if metric_name == metrics.ConfusionMatrix.name:
-            for i, ax in enumerate(axes.flatten()):
+            for i, ax in enumerate(axes.ravel()):
                 col, row = i%3, i//3
 
                 get_element_stat = lambda stat: np.array(metric_statistics[stat])[:, i] / confusion_matrix_normalization[row, row]
