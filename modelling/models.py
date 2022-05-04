@@ -7,19 +7,7 @@ from scipy.special import loggamma
 from scipy import stats, optimize
 
 from utils.output import remove_all_chains_but, chain_directory_prefix, erase_sample
-
-import pyximport
-pyximport.install(setup_args={ "include_dirs": np.get_include()}, language_level=3)
-from .likelihood_function import get_neg_loglikelihood, rho_constraint
 import pygrit
-
-
-def poisson_lpmf(x, mu):
-    return x*np.log(mu) - loggamma(x+1) - mu
-
-def log_sum_exp(y):
-    ymax = max(y)
-    return ymax + np.log(np.sum(np.exp(y-ymax)))
 
 
 def get_occurences_in_observations(observations):
@@ -193,8 +181,8 @@ class InferenceModel(ABC):
             with warnings.catch_warnings():
                 warnings.filterwarnings(action='ignore', category=RuntimeWarning)
 
-                estimate = optimize.minimize(get_neg_loglikelihood, x0=np.array([.8, .1, .1, .1, 10, 30]), bounds=np.array([(1e-8, 1e8)]*6),
-                        constraints={"type":"eq", "fun": rho_constraint}, tol=1e-2, args=(occurences.astype(np.float), values.astype(np.float)))
+                estimate = optimize.minimize(pygrit.get_neg_mixture_likelihood, x0=np.array([.8, .1, .1, .1, 10, 30]), bounds=np.array([(1e-8, 1e8)]*6),
+                        constraints={"type":"eq", "fun": lambda x: np.sum(x[:3])-1}, tol=1e-2, args=(occurences.astype(np.float), values.astype(np.float)))
 
             return estimate.x, -estimate.fun
 

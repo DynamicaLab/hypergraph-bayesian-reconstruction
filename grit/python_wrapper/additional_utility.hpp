@@ -8,6 +8,45 @@
 #include <pybind11/numpy.h>
 
 
+double logSumExp(const std::array<double, 3>& y) {
+    double ymax = y[0]>y[1] ? y[0]: y[1];
+    if (y[2]>ymax)
+        ymax = y[2];
+
+    double total = 0;
+    for (auto& val: y)
+        total += exp(val-ymax);
+    return ymax+log(total);
+}
+
+double getNegMixtureLikelihood(const py::array_t<double>& parameters,
+            const py::array_t<double>& occurences,
+            const py::array_t<double>& values
+        ) {
+    py::buffer_info parametersBuffer = parameters.request();
+    double* parametersPtr = (double*) parametersBuffer.ptr;
+
+    py::buffer_info occurencesBuffer = occurences.request();
+    double* occurencesPtr = (double*) occurencesBuffer.ptr;
+    double n = occurencesBuffer.shape[0];
+
+    py::buffer_info valuesBuffer = values.request();
+    double* valuesPtr = (double*) valuesBuffer.ptr;
+
+
+    double loglikelihood=0;
+    std::array<double, 3> elementsToSum;
+
+    for (size_t i=0; i<n; i++) {
+        for (size_t j=0; j<3; j++)
+            elementsToSum[j] = log(parametersPtr[j]) + valuesPtr[i]*log(parametersPtr[3+j]) - parametersPtr[3+j] - lgamma(valuesPtr[i]+1);
+
+        loglikelihood += occurencesPtr[i]*logSumExp(elementsToSum);
+    }
+    return -loglikelihood;
+}
+
+
 std::list<std::tuple<size_t, size_t, size_t>> getDecreasingOrderedPairs(const py::array_t<size_t>& observations) {
     py::buffer_info observationsBuffer = observations.request();
     size_t* observationsPtr = (size_t*) observationsBuffer.ptr;

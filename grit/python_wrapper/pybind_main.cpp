@@ -139,6 +139,7 @@ PYBIND11_MODULE(pygrit, m)
     m.def("generate_independent_hyperedges_only_cycles", &generateIndependentHyperedgeOnlyCycles);
     m.def("generate_independent_hyperedges_no_cycles", &generateIndependentHyperedgeWithoutCycles);
 
+    m.def("get_neg_mixture_likelihood", &getNegMixtureLikelihood);
     m.def("get_decreasing_ordered_pairs", &getDecreasingOrderedPairs);
 
     m.def("remove_disconnected_vertices", &removeDisconnectedVertices);
