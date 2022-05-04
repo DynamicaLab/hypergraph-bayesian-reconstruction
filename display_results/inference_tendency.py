@@ -7,7 +7,7 @@ import warnings
 
 import plot_setup
 sys.path.append("../")
-import metrics
+import modeling.metrics as metrics
 from generation.hypergraph_generation import load_binary_hypergraph
 from generation.observations_generation import load_binary_observations
 from utils.config import ConfigurationParserWithModels, get_json, get_dataset_name, get_config

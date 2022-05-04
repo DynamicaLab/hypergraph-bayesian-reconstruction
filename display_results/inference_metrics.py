@@ -5,7 +5,7 @@ from numpy.lib.function_base import percentile
 
 import plot_setup
 sys.path.append("../")
-import metrics
+import modeling.metrics as metrics
 from utils.config import ConfigurationParserWithModels, get_json, get_dataset_name, get_config
 from utils.output import get_output_directory_for, metrics_filename
 from modeling.models import models
