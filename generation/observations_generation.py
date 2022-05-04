@@ -3,8 +3,8 @@ import os
 from scipy import stats
 
 import pygrit
-from utils.output import get_output_directory_for, observations_filename
-from utils.config import InvalidConfiguration
+from modeling.output import get_output_directory_for, observations_filename
+from modeling.config import InvalidConfiguration
 
 
 def load_binary_observations(dataset_name):

@@ -7,8 +7,8 @@ from tqdm import tqdm
 import plot_setup
 sys.path.append("../")
 from modeling.models import models
-from utils.config import ConfigurationParserWithModels, get_dataset_name, get_config
-from utils.output import get_output_directory_for, metrics_filename
+from modeling.config import ConfigurationParserWithModels, get_dataset_name, get_config
+from modeling.output import get_output_directory_for, metrics_filename
 
 import pygrit
 

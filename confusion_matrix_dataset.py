@@ -6,8 +6,8 @@ from generation.hypergraph_generation import load_binary_hypergraph
 from generation.observations_generation import generate_observations
 from modeling.metrics import ConfusionMatrix, compute_metrics
 from modeling.models import models, PES, PHG
-from utils.config import ConfigurationParserWithModels, get_config, get_dataset_name
-from utils.output import create_output_directories, get_output_directory_for, write_metrics
+from modeling.config import ConfigurationParserWithModels, get_config, get_dataset_name
+from modeling.output import create_output_directories, get_output_directory_for, write_metrics
 
 
 if __name__ == "__main__":

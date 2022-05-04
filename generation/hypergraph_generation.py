@@ -3,8 +3,8 @@ import numpy as np
 import os
 
 import pygrit
-from utils.output import get_output_directory_for, hypergraph_filename
-from utils.config import InvalidConfiguration
+from modeling.output import get_output_directory_for, hypergraph_filename
+from modeling.config import InvalidConfiguration
 
 
 def load_binary_hypergraph(dataset_name):

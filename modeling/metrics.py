@@ -2,7 +2,7 @@ import numpy as np
 from numpy.core.numeric import NaN
 from numpy.lib.twodim_base import triu_indices
 
-from utils.output import find_chains, get_sample_of_chain, get_edgetype_probabilities_of_chain, write_metrics
+from .output import find_chains, get_sample_of_chain, get_edgetype_probabilities_of_chain, write_metrics
 import pygrit
 
 

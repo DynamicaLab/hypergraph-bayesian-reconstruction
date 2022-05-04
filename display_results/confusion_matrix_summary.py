@@ -3,8 +3,8 @@ import numpy as np
 from numpy.lib.function_base import percentile
 
 sys.path.append("../")
-from utils.config import ConfigurationParserWithModels, get_json, get_dataset_name, get_config
-from utils.output import get_output_directory_for, metrics_filename
+from modeling.config import ConfigurationParserWithModels, get_json, get_dataset_name, get_config
+from modeling.output import get_output_directory_for, metrics_filename
 from generation.hypergraph_generation import load_binary_hypergraph
 
 os.chdir("../")

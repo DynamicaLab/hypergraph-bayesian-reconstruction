@@ -6,7 +6,7 @@ from numpy.lib.twodim_base import triu_indices
 from scipy.special import loggamma
 from scipy import stats, optimize
 
-from utils.output import remove_all_chains_but, chain_directory_prefix, erase_sample
+from .output import remove_all_chains_but, chain_directory_prefix, erase_sample
 import pygrit
 
 

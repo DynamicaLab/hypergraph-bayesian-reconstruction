@@ -6,8 +6,8 @@ from scipy import stats
 import plot_setup
 sys.path.append("../")
 from modeling.models import models
-from utils.config import GenericConfigurationParser, get_dataset_name, get_config
-from utils.output import get_output_directory_for, observations_filename, get_sample_files
+from modeling.config import GenericConfigurationParser, get_dataset_name, get_config
+from modeling.output import get_output_directory_for, observations_filename, get_sample_files
 from generation.observations_generation import load_binary_observations
 
 os.chdir("../")

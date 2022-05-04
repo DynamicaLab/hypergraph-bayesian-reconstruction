@@ -6,7 +6,7 @@ from scipy import stats
 import plot_setup
 sys.path.append("../")
 from modeling.models import models
-from utils.config import ConfigurationParserWithModels, get_config, get_dataset_name
+from modeling.config import ConfigurationParserWithModels, get_config, get_dataset_name
 
 os.chdir("../")
 

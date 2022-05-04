@@ -10,8 +10,8 @@ sys.path.append("../")
 import modeling.metrics as metrics
 from generation.hypergraph_generation import load_binary_hypergraph
 from generation.observations_generation import load_binary_observations
-from utils.config import ConfigurationParserWithModels, get_json, get_dataset_name, get_config
-from utils.output import metrics_filename, get_tendency_sampling_directory, observations_filename
+from modeling.config import ConfigurationParserWithModels, get_json, get_dataset_name, get_config
+from modeling.output import metrics_filename, get_tendency_sampling_directory, observations_filename
 import pygrit
 
 os.chdir("../")

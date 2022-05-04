@@ -6,8 +6,8 @@ from generation.hypergraph_generation import load_binary_hypergraph
 from generation.observations_generation import load_binary_observations
 from modeling.metrics import compute_and_save_all_metrics, compute_and_save_tendency_metrics
 from modeling.models import models, PES
-from utils.config import ConfigurationParserWithModels, get_config, get_dataset_name
-from utils.output import create_output_directories, get_tendency_sampling_directory, observations_filename, get_output_directory_for
+from modeling.config import ConfigurationParserWithModels, get_config, get_dataset_name
+from modeling.output import create_output_directories, get_tendency_sampling_directory, observations_filename, get_output_directory_for
 
 
 class ParserWithOptionalTendency(ConfigurationParserWithModels):

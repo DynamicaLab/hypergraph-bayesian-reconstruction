@@ -5,7 +5,7 @@ from numpy.lib.function_base import percentile
 
 import plot_setup
 sys.path.append("../")
-from utils.config import GenericConfigurationParser, get_dataset_name, get_config
+from modeling.config import GenericConfigurationParser, get_dataset_name, get_config
 from generation.hypergraph_generation import load_binary_hypergraph
 import pygrit
 
