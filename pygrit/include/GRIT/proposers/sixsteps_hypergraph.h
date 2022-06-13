@@ -21,8 +21,8 @@ class HypergraphSixStepsProposer: public ProposerBase{
     TriangleChooserBase& triangleRemover;
     EdgeChooserBase& edgeAdder;
     EdgeChooserBase& edgeRemover;
-
     double eta, chi_0, chi_1;
+
     size_t pairsUnder3edgeNumber=0;
 
     std::bernoulli_distribution addRemoveDistribution;

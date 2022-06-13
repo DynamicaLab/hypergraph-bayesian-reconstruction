@@ -24,7 +24,7 @@ class GibbsSampler: public GibbsBase {
     double averageLogLikelihood = 0;
 
     public:
-        explicit GibbsSampler(Hypergraph& hypergraph, Parameters& parameters, T_parameterSampler& parameterSampler, T_hypergraphSampler& hypergraphSampler);
+        explicit GibbsSampler(Hypergraph&, Parameters&, T_parameterSampler&, T_hypergraphSampler&);
 
         //void executeBurninIteration() { sampleFromPosterior(); }
         void sampleFromPosterior();
@@ -43,9 +43,9 @@ class GibbsSampler: public GibbsBase {
 template<typename T_parameterSampler, typename T_hypergraphSampler>
 GibbsSampler<T_parameterSampler, T_hypergraphSampler>::GibbsSampler(
         Hypergraph& hypergraph, Parameters& parameters, T_parameterSampler& parameterSampler, T_hypergraphSampler& hypergraphSampler):
+    GibbsBase(hypergraph, parameters),
     parameterSampler(parameterSampler),
-    hypergraphSampler(hypergraphSampler),
-    GibbsBase(hypergraph, parameters)
+    hypergraphSampler(hypergraphSampler)
 {}
 
 

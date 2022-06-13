@@ -189,7 +189,7 @@ double drawFromTruncatedGammaITS(double inf, double sup, double a, double b) {
 
 
     size_t tries = 100;
-    for (auto i=0; i<tries; i++) {
+    for (size_t i=0; i<tries; i++) {
         double u = uniform_real_distribution<double>(0, 1)(GRIT::generator);
 
         try {

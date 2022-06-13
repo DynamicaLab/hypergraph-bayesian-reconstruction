@@ -7,7 +7,7 @@
 namespace GRIT {
 
 UniformTriangleChooser::UniformTriangleChooser(const Hypergraph& hypergraph):
-    samplableSet(1, 1000000), hypergraph(hypergraph) {
+    hypergraph(hypergraph), samplableSet(1, 1000000) {
     buildSamplableSetFromGraph();
 }
 
@@ -62,7 +62,7 @@ double UniformTriangleChooser::getReverseProbability(const Triplet& triplet, con
 
 void UniformTriangleChooser::updateProbabilities(const Triplet &triplet, const AddRemoveMove &move) {
     bool isTriangle = hypergraph.isTriangle(triplet);
-    if (move == ADD && isTriangle || move == REMOVE && !isTriangle)
+    if ((move == ADD && isTriangle) || (move == REMOVE && !isTriangle))
         return;
     updateWeightOfIndex(triplet.i, move);
     updateWeightOfIndex(triplet.j, move);

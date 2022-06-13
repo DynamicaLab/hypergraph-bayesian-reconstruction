@@ -14,9 +14,9 @@ double PoissonEdgeStrengthObservationsModel::operator()(const TwoStepsEdgePropos
 
     if (m == 0 && proposal.move == REMOVE)
         throw std::logic_error("Observations model: Can't remove an edge where there is none");
-    if (m > 2 || m==2 && proposal.move == ADD)
+    if (( m > 2 || m==2) && (proposal.move == ADD ))
         throw std::logic_error("Observations model: edge multiplicity greater than  not allowed in the observation model");
-    
+
 
     double logAcceptance;
     if (proposal.move == ADD)

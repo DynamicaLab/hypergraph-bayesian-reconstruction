@@ -11,8 +11,8 @@
 namespace GRIT{
 
 class PoissonIndependentHyperedgesParameterSampler_ordered {
-    const Observations& observations;
     const Hypergraph& hypergraph;
+    const Observations& observations;
     Parameters& parameters;
     const Parameters& hyperParameters;
 
@@ -22,7 +22,7 @@ class PoissonIndependentHyperedgesParameterSampler_ordered {
         PoissonIndependentHyperedgesParameterSampler_ordered(const Hypergraph& hypergraph, const Observations& observations, Parameters& parameters, const Parameters& hyperParameters):
                 hypergraph(hypergraph), observations(observations), parameters(parameters), hyperParameters(hyperParameters)
         {
-            nchoose3Value = nchoose3(hypergraph.getSize()); 
+            nchoose3Value = nchoose3(hypergraph.getSize());
             nchoose2 = hypergraph.getSize()*(hypergraph.getSize()-1)/2;
             if (hyperParameters.size() != 10)
                 throw std::logic_error("Parameter sampler: incorrect number of hyperparameters. "

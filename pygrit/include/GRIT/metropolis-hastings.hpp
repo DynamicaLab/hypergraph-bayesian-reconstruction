@@ -65,9 +65,9 @@ class MetropolisHastings {
 template<typename Proposer, typename T_observations, typename HypergraphModel, typename Prior>
 MetropolisHastings<Proposer, T_observations, HypergraphModel, Prior>::MetropolisHastings(Hypergraph& hypergraph, const Observations& observations,
                                     const Parameters& parameters, const Parameters& hyperparameters, Proposer& proposer, const std::array<size_t, 2>& steps, size_t windowSize, double tolerance):
-        windowSize(windowSize), minIterations(steps[0]), maxIterations(steps[1]), tolerance(tolerance),
         proposer(proposer),
-        observationsModel(hypergraph, parameters, observations), hypergraphModel(hypergraph, parameters, observations), modelPriors(parameters, hyperparameters)
+        observationsModel(hypergraph, parameters, observations), hypergraphModel(hypergraph, parameters, observations), modelPriors(parameters, hyperparameters),
+        minIterations(steps[0]), maxIterations(steps[1]), windowSize(windowSize), tolerance(tolerance)
 {
     chainLength = 0;
     likelihoodAdjustment = 0;

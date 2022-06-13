@@ -8,9 +8,10 @@ HypergraphFourStepsProposer::HypergraphFourStepsProposer(
                 TriangleChooserBase& triangleAdder, TriangleChooserBase& triangleRemover,
                 EdgeChooserBase& edgeAdder, EdgeChooserBase& edgeRemover,
                 double eta, double xi):
-        hypergraph(hypergraph), eta(eta),
+        hypergraph(hypergraph),
         triangleAdder(triangleAdder), triangleRemover(triangleRemover),
-        edgeAdder(edgeAdder), edgeRemover(edgeRemover)
+        edgeAdder(edgeAdder), edgeRemover(edgeRemover),
+        eta(eta)
 {
     movetypeDistribution = std::bernoulli_distribution(eta);
     hyperedgeTypeDistribution = std::bernoulli_distribution(xi);
@@ -21,9 +22,10 @@ HypergraphFourStepsProposer::HypergraphFourStepsProposer(
                 TriangleChooserBase& triangleAdder, TriangleChooserBase& triangleRemover,
                 EdgeChooserBase& edgeAdder, EdgeChooserBase& edgeRemover,
                 double eta, double xi):
-        hypergraph(hypergraph), eta(eta),
+        hypergraph(hypergraph),
         triangleAdder(triangleAdder), triangleRemover(triangleRemover),
-        edgeAdder(edgeAdder), edgeRemover(edgeRemover)
+        edgeAdder(edgeAdder), edgeRemover(edgeRemover),
+        eta(eta)
 {
     movetypeDistribution = std::bernoulli_distribution(eta);
     hyperedgeTypeDistribution = std::bernoulli_distribution(xi);

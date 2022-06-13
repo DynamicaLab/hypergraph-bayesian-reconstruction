@@ -4,15 +4,17 @@
 namespace GRIT {
 
 EdgeTwoStepsProposer::EdgeTwoStepsProposer(Hypergraph& hypergraph, Parameters& parameters, const Observations& observations, EdgeChooserBase& additionChooser, EdgeChooserBase& removalChooser, double eta):
-        hypergraph(hypergraph), eta(eta),
-        currentProposal({ REMOVE, {0, 0} }),
-        additionChooser(additionChooser), removalChooser(removalChooser)
+        hypergraph(hypergraph),
+        additionChooser(additionChooser), removalChooser(removalChooser),
+        eta(eta),
+        currentProposal({ REMOVE, {0, 0} })
 {}
 
 EdgeTwoStepsProposer::EdgeTwoStepsProposer(Hypergraph& hypergraph, Parameters& parameters, const Parameters& hyperParameters, const Observations& observations, EdgeChooserBase& additionChooser, EdgeChooserBase& removalChooser, double eta):
-        hypergraph(hypergraph), eta(eta),
-        currentProposal({ REMOVE, {0, 0} }),
-        additionChooser(additionChooser), removalChooser(removalChooser)
+        hypergraph(hypergraph),
+        additionChooser(additionChooser), removalChooser(removalChooser),
+        eta(eta),
+        currentProposal({ REMOVE, {0, 0} })
 {}
 
 

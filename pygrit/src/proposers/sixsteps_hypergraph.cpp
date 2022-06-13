@@ -9,10 +9,11 @@ HypergraphSixStepsProposer::HypergraphSixStepsProposer(
                 TriangleChooserBase& triangleAdder, TriangleChooserBase& triangleRemover,
                 EdgeChooserBase& edgeAdder, EdgeChooserBase& edgeRemover,
                 const std::vector<double>& moveProbabilities, double eta, double chi_0, double chi_1):
-        hypergraph(hypergraph), eta(eta), chi_0(chi_0), chi_1(chi_1),
+        hypergraph(hypergraph),
         triangleAdder(triangleAdder), triangleRemover(triangleRemover),
-        edgeAdder(edgeAdder), edgeRemover(edgeRemover)
-{
+        edgeAdder(edgeAdder), edgeRemover(edgeRemover),
+        eta(eta), chi_0(chi_0), chi_1(chi_1) {
+
     addRemoveDistribution = std::bernoulli_distribution(eta);
 
     if (moveProbabilities.size() != 3)
@@ -26,9 +27,10 @@ HypergraphSixStepsProposer::HypergraphSixStepsProposer(
                 TriangleChooserBase& triangleAdder, TriangleChooserBase& triangleRemover,
                 EdgeChooserBase& edgeAdder, EdgeChooserBase& edgeRemover,
                 const std::vector<double>& moveProbabilities, double eta, double chi_0, double chi_1):
-        hypergraph(hypergraph), eta(eta), chi_0(chi_0), chi_1(chi_1),
+        hypergraph(hypergraph),
         triangleAdder(triangleAdder), triangleRemover(triangleRemover),
-        edgeAdder(edgeAdder), edgeRemover(edgeRemover)
+        edgeAdder(edgeAdder), edgeRemover(edgeRemover),
+        eta(eta), chi_0(chi_0), chi_1(chi_1)
 {
     addRemoveDistribution = std::bernoulli_distribution(eta);
 
@@ -129,8 +131,8 @@ void HypergraphSixStepsProposer::proposeHiddenEdges() {
 }
 
 void HypergraphSixStepsProposer::updatePairHiddenEdgeMove(size_t i, size_t j, std::set<Edge>& unchangedPairs) {
-    if (currentProposal.move == ADD && !hypergraph.isEdge(i, j) ||
-            currentProposal.move == REMOVE && hypergraph.isEdge(i, j))
+    if ((currentProposal.move == ADD && !hypergraph.isEdge(i, j))
+            || (currentProposal.move == REMOVE && hypergraph.isEdge(i, j)))
         currentProposal.changedPairs.insert({i, j});
     else
         unchangedPairs.insert({i, j});
@@ -140,9 +142,6 @@ double HypergraphSixStepsProposer::getLogAcceptanceContribution() const {
     const size_t& i = currentProposal.chosenTriplet.i;
     const size_t& j = currentProposal.chosenTriplet.j;
     const size_t& k = currentProposal.chosenTriplet.k;
-
-    const size_t changedPairsNumber = currentProposal.changedPairs.size();
-    const size_t& unchangedPairsNumber = currentProposal.unchangedPairsNumber;
 
     const size_t& edgeNumber(hypergraph.getEdgeNumber()), triangleNumber(hypergraph.getTriangleNumber());
     size_t maximumEdgeNumber(hypergraph.getMaximumEdgeNumber()), maximumTriangleNumber(hypergraph.getMaximumTriangleNumber());

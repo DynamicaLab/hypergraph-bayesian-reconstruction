@@ -4,13 +4,15 @@
 namespace GRIT {
 
 TriangleTwoStepsProposer::TriangleTwoStepsProposer(Hypergraph& hypergraph, Parameters& parameters, const Observations& observations, TriangleChooserBase& additionChooser, TriangleChooserBase& removalChooser, double eta):
-        hypergraph(hypergraph), eta(eta), 
-        additionChooser(additionChooser), removalChooser(removalChooser)
+        hypergraph(hypergraph),
+        additionChooser(additionChooser), removalChooser(removalChooser),
+        eta(eta)
 {}
 
 TriangleTwoStepsProposer::TriangleTwoStepsProposer(Hypergraph& hypergraph, Parameters& parameters, const Parameters& hyperParameters, const Observations& observations, TriangleChooserBase& additionChooser, TriangleChooserBase& removalChooser, double eta):
-        hypergraph(hypergraph), eta(eta), 
-        additionChooser(additionChooser), removalChooser(removalChooser)
+        hypergraph(hypergraph),
+        additionChooser(additionChooser), removalChooser(removalChooser),
+        eta(eta)
 {}
 
 
@@ -50,9 +52,6 @@ bool TriangleTwoStepsProposer::applyStep(){
     const size_t& j = currentProposal.chosenTriplet.j;
     const size_t& k = currentProposal.chosenTriplet.k;
 
-    size_t mi = hypergraph.getTrianglesFrom(i).size();
-    size_t mj = hypergraph.getTrianglesFrom(j).size();
-    size_t mk = hypergraph.getTrianglesFrom(k).size();
     if ( !(i==j || i==k || j==k) ){
         additionChooser.updateProbabilities(currentProposal.chosenTriplet, currentProposal.move);
         removalChooser.updateProbabilities(currentProposal.chosenTriplet, currentProposal.move);

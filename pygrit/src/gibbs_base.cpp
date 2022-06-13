@@ -167,7 +167,6 @@ static size_t getMostCommonType(const std::array<size_t, 3>& occurences) {
 Hypergraph GibbsBase::getMostCommonEdgeTypes(EdgeTypeFrequencies& edgetype1, EdgeTypeFrequencies& edgetype2, size_t sampleSize) const {
     Hypergraph mostCommonEdgeTypes(hypergraph.getSize());
     std::array<size_t, 3> occurences;
-    size_t edgeType;
 
     for (size_t i=0; i<hypergraph.getSize(); i++)
         for (size_t j=i+1; j<hypergraph.getSize(); j++) {

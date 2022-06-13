@@ -13,15 +13,7 @@ namespace GRIT {
 using namespace std;
 
 
-static bool stringHasEnding (std::string const &fullString, std::string const &ending) {
-    if (fullString.length() >= ending.length()) {
-        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
-    } else {
-        return false;
-    }
-}
-
-Hypergraph::Hypergraph(size_t size) : edgeNumber(0), TriangleList(size){
+Hypergraph::Hypergraph(size_t size) : TriangleList(size), edgeNumber(0){
     adjacencyLists.resize(size);
 }
 

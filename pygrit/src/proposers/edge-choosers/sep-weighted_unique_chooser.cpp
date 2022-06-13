@@ -5,7 +5,7 @@
 
 namespace GRIT {
 
-static size_t findDataMaximum(const Observations& observations){
+static size_t findMaximum(const Observations& observations){
     size_t maximum = 0;
     for (size_t i=0; i<observations.size(); i++) {
         for (size_t j=i+1; j<observations.size(); j++) {
@@ -17,13 +17,17 @@ static size_t findDataMaximum(const Observations& observations){
 }
 
 SeparatedWeightedUniqueEdgeChooser::SeparatedWeightedUniqueEdgeChooser(const Observations& observations, const Hypergraph& hypergraph, double choosePairWithoutObservationsProbability):
-        observations(observations), hypergraph(hypergraph), choosePairWithoutObservationsProbability(choosePairWithoutObservationsProbability),
+        observations(observations), hypergraph(hypergraph),
         choosePairWithObservationsDistribution(1-choosePairWithoutObservationsProbability),
-        nonEdgesWithObservations(1, findDataMaximum(observations)+1), nonEdgesWithoutObservations(1, 1) { recomputeDistribution(); }
+        choosePairWithoutObservationsProbability(choosePairWithoutObservationsProbability),
+        nonEdgesWithObservations(1, findMaximum(observations)+1), nonEdgesWithoutObservations(1, 1) {
+
+    recomputeDistribution();
+}
 
 void SeparatedWeightedUniqueEdgeChooser::recomputeDistribution() {
-    nonEdgesWithObservations = sset::SamplableSet<std::pair<size_t, size_t>>(1, findDataMaximum(observations)+1);
-    nonEdgesWithoutObservations = sset::SamplableSet<std::pair<size_t, size_t>>(1, findDataMaximum(observations)+1);
+    nonEdgesWithObservations = sset::SamplableSet<std::pair<size_t, size_t>>(1, findMaximum(observations)+1);
+    nonEdgesWithoutObservations = sset::SamplableSet<std::pair<size_t, size_t>>(1, findMaximum(observations)+1);
 
     for (size_t i=0; i<observations.size(); i++)
         for (size_t j=i+1; j<observations.size(); j++)
@@ -36,7 +40,8 @@ void SeparatedWeightedUniqueEdgeChooser::recomputeDistribution() {
 }
 
 Edge SeparatedWeightedUniqueEdgeChooser::choose() {
-    if (nonEdgesWithoutObservations.size() == 0 || choosePairWithObservationsDistribution(generator) && nonEdgesWithObservations.size() > 0)
+    if (nonEdgesWithoutObservations.size() == 0 ||
+            (choosePairWithObservationsDistribution(generator) && nonEdgesWithObservations.size() > 0))
         return nonEdgesWithObservations.sample_ext_RNG<std::mt19937>(generator).first;
     else
         return nonEdgesWithoutObservations.sample_ext_RNG<std::mt19937>(generator).first;

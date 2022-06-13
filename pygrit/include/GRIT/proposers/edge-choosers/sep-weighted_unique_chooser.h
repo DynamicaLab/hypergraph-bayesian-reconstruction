@@ -15,11 +15,12 @@ namespace GRIT {
 
 class SeparatedWeightedUniqueEdgeChooser: public EdgeChooserBase {
     const Observations& observations;
-    sset::SamplableSet<std::pair<size_t, size_t>> nonEdgesWithoutObservations;
-    sset::SamplableSet<std::pair<size_t, size_t>> nonEdgesWithObservations;
     const Hypergraph& hypergraph;
-    std::bernoulli_distribution choosePairWithObservationsDistribution;
     double choosePairWithoutObservationsProbability;
+
+    sset::SamplableSet<std::pair<size_t, size_t>> nonEdgesWithObservations;
+    sset::SamplableSet<std::pair<size_t, size_t>> nonEdgesWithoutObservations;
+    std::bernoulli_distribution choosePairWithObservationsDistribution;
 
     public:
         SeparatedWeightedUniqueEdgeChooser(const Observations& observations, const Hypergraph& hypergraph, double choosePairWithoutObservationsProbability=1e-5);

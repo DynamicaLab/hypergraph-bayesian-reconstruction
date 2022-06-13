@@ -8,9 +8,10 @@ double EdgeStrengthGraphModel::operator()(const TwoStepsEdgeProposal &proposal) 
     const double& q1 = parameters[q1Index];
     const double& q2 = parameters[q2Index];
 
-    size_t i = proposal.chosenEdge.first;
-    size_t j = proposal.chosenEdge.second;
-    size_t m = hypergraph.getEdgeMultiplicity(i, j);
+    size_t m = hypergraph.getEdgeMultiplicity(
+            proposal.chosenEdge.first,
+            proposal.chosenEdge.second
+        );
 
     double logLikelihood = 0;
 
