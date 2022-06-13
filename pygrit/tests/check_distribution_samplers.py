@@ -37,7 +37,7 @@ def beta(a, b):
 
 def shifted_geometric(p, N):
     def f(x):
-        return (1-p)*p**x / (p*p * (1-p**(N-1)))
+        return (1-p)**(x-2)*p / (1-(1-p)**(N-1))
     return f
 
 
@@ -49,39 +49,41 @@ def linear(xmin, xmax, slope):
 
 
 N = 100000
+geom_N = 10
 maxit = int(1e6)
 a, b = 3, 1/2
 slope = -0.3
-p = 0.85
+#p = 0.85
+p = 0.1
 trunc_bound = [0.1, 1]
 inf, sup = 5, 10
 
 # grit.sample_from_truncgamma
 setups = [("trunc gamma", [
-                    # (grit.sample_from_truncgamma_its, (*trunc_bound, a, b), "ITS"),
-                    # (grit.sample_from_truncgamma_gamma_rs, (*trunc_bound, a, b, maxit), "Gamma RS"),
-                    # (grit.sample_from_truncgamma_uniform_rs, (*trunc_bound, a, b, maxit), "Uniform RS"),
-                    (grit.sample_from_truncgamma_linear_rs, (*trunc_bound, a, b, maxit), "Linear RS")
+                    # (pygrit.sample_from_truncgamma_its, (*trunc_bound, a, b), "ITS"),
+                    # (pygrit.sample_from_truncgamma_gamma_rs, (*trunc_bound, a, b, maxit), "Gamma RS"),
+                    # (pygrit.sample_from_truncgamma_uniform_rs, (*trunc_bound, a, b, maxit), "Uniform RS"),
+                    (pygrit.sample_from_truncgamma_linear_rs, (*trunc_bound, a, b, maxit), "Linear RS")
                 ],
                 truncgamma(*trunc_bound, a, b)),
           ("linear", [
-              (grit.sample_from_linear, (*trunc_bound, slope), "ITS")
+              (pygrit.sample_from_linear, (*trunc_bound, slope), "ITS")
               ],
               linear(*trunc_bound, slope)),
-          ("trunc geometric discrete", [
-                    (grit.sample_from_shifted_geometric, (p, trunc_bound[1]), "Shifted geometric ITS")
+          ("trunc geometric", [
+                    (pygrit.sample_from_shifted_geometric, (p, geom_N), "Shifted geometric ITS")
                 ],
-                shifted_geometric(p, trunc_bound[1])),
+                shifted_geometric(p, geom_N)),
           ("lower", [
-                    (grit.sample_from_lower_truncgamma_its, (inf, a, b), "ITS")
+                    (pygrit.sample_from_lower_truncgamma_its, (inf, a, b), "ITS")
                 ],
                 lower_truncgamma(inf, a, b)),
           ("upper", [
-                    (grit.sample_from_upper_truncgamma_its, (sup, a, b), "ITS")
+                    (pygrit.sample_from_upper_truncgamma_its, (sup, a, b), "ITS")
                 ],
                 upper_truncgamma(sup, a, b)),
           ("beta", [
-                   (grit.sample_from_beta, (a, b), "Beta thing")
+                   (pygrit.sample_from_beta, (a, b), "Beta thing")
                    ],
                 beta(a, b))
           ]
@@ -94,12 +96,14 @@ for name, f_to_test, density in setups:
         labels.append(f_name)
         samples.append([f(*args) for i in range(N)])
 
-    if "discrete" not in name:
-        pyplot.hist(samples, bins=30//len(f_to_test), density=True, label=labels)
+    if "geometric" in name:
+        pyplot.hist(samples, bins=numpy.arange(1.5, geom_N+.5), density=True, label=labels)
     else:
-        pyplot.hist(samples, bins=numpy.arange(2, trunc_bound[1]+1), density=True, label=labels)
+        pyplot.hist(samples, bins=30//len(f_to_test), density=True, label=labels)
 
     xvalues = numpy.linspace(.9*min(samples[0]), 1.1*max(samples[0]), 1000)
+    if "geometric" in name:
+        xvalues = numpy.linspace(1.5, geom_N+.5, 200)
     pyplot.plot(xvalues, density(xvalues), color='k')
 
     pyplot.title(name)
