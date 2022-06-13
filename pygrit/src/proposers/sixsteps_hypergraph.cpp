@@ -111,6 +111,7 @@ void HypergraphSixStepsProposer::proposeHiddenEdges() {
     }
     currentProposal.unchangedPairsNumber = unchangedPairs.size();
     currentProposal.maximumChangedPairsNumber = currentProposal.changedPairs.size();
+    pairsUnder3edgeNumber = unchangedPairs.size() + currentProposal.changedPairs.size();
 
     if (currentProposal.changedPairs.size() < 2)
         generateProposal();
@@ -149,7 +150,19 @@ double HypergraphSixStepsProposer::getLogAcceptanceContribution() const {
     double logAcceptance = 0;
 
 
-    if (currentProposal.move == ADD) {
+    if (currentProposal.moveType == SixStepsHypergraphProposal::HIDDEN_EDGES) {
+        int a = currentProposal.move == ADD;
+        const auto& m = currentProposal.changedPairs.size();
+        const auto& chi_a = a ? chi_1 : chi_0;
+        const auto& chi_not_a = a ? chi_0 : chi_1;
+        const auto& N_a = currentProposal.maximumChangedPairsNumber;
+        const auto& N_not_a = pairsUnder3edgeNumber-N_a;
+
+        logAcceptance += (2*a-1)*(log(1-eta)-log(eta)) + (m-2)*(log(1-chi_not_a) - log(1-chi_a))
+            + log(chi_not_a) - log(chi_a) + log(1-pow(1-chi_a, N_a)) - log(1-pow(1-chi_not_a, N_not_a+m))
+            + lgamma(N_a+1) + lgamma(N_not_a) - lgamma(N_not_a+m) - lgamma(N_a-m);
+    }
+    else if (currentProposal.move == ADD) {
         if (currentProposal.moveType == SixStepsHypergraphProposal::EDGE) {
             if (edgeNumber == maximumEdgeNumber-1)
                 logAcceptance += -log(eta);
@@ -167,11 +180,6 @@ double HypergraphSixStepsProposer::getLogAcceptanceContribution() const {
 
             logAcceptance += log(triangleRemover.getReverseProbability({i, j, k}, ADD));
             logAcceptance += -log(triangleAdder.getForwardProbability({i, j, k}, ADD));
-        }
-        else if (currentProposal.moveType == SixStepsHypergraphProposal::HIDDEN_EDGES) {
-            logAcceptance += log(1-eta) - log(eta);
-                            + (changedPairsNumber-2) * (log(chi_0)-log(chi_1)) + log(1-chi_0) - log(1-chi_1)
-                            + log(1-pow(chi_1, currentProposal.maximumChangedPairsNumber-1)) - log(1-pow(chi_0, unchangedPairsNumber-(currentProposal.maximumChangedPairsNumber-changedPairsNumber) + changedPairsNumber-1));
         }
     }
     else if (currentProposal.move == REMOVE) {
@@ -192,11 +200,6 @@ double HypergraphSixStepsProposer::getLogAcceptanceContribution() const {
 
             logAcceptance += log(triangleAdder.getReverseProbability({i, j, k}, REMOVE));
             logAcceptance += -log(triangleRemover.getForwardProbability({i, j, k}, REMOVE));
-        }
-        else if (currentProposal.moveType == SixStepsHypergraphProposal::HIDDEN_EDGES) {
-            logAcceptance += log(eta) - log(1-eta);
-                            + (changedPairsNumber-2) * (log(chi_1)-log(chi_0)) + log(1-chi_1) - log(1-chi_0)
-                            + log(1-pow(chi_0, currentProposal.maximumChangedPairsNumber-1)) - log(1-pow(chi_1, unchangedPairsNumber-(currentProposal.maximumChangedPairsNumber-changedPairsNumber) + changedPairsNumber-1));
         }
     }
 
