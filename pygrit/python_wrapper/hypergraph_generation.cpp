@@ -167,28 +167,28 @@ GRIT::Hypergraph generateIndependentHyperedgeWithoutCycles(size_t n, double tria
 GRIT::Hypergraph generateBetaModelHypergraphWithNormalDistributions(size_t n, double edgeMean, double edgeSTD, double triangleMean, double triangleSTD) {
     GRIT::Hypergraph hypergraph(n);
 
-    std::normal_distribution<double> edgeParametersDistribution(edgeMean, edgeSTD);
-    std::normal_distribution<double> triangleParametersDistribution(triangleMean, triangleSTD);
+    std::normal_distribution<double> edgePropensityDistribution(edgeMean, edgeSTD);
+    std::normal_distribution<double> trianglePropensitiesDistribution(triangleMean, triangleSTD);
     std::uniform_real_distribution<double> uniform01Distribution(0, 1);
 
-    std::vector<double> edgeParameters;
-    std::vector<double> triangleParameters;
+    std::vector<double> edgePropensities;
+    std::vector<double> trianglePropensities;
 
     for (size_t i=0; i<n; i++){
-        edgeParameters.push_back(edgeParametersDistribution(GRIT::generator));
-        triangleParameters.push_back(triangleParametersDistribution(GRIT::generator));
+        edgePropensities.push_back(edgePropensityDistribution(GRIT::generator));
+        trianglePropensities.push_back(trianglePropensitiesDistribution(GRIT::generator));
     }
 
     double edgeProbability, triangleProbability;
 
     for (size_t i=0; i<n; i++) {
         for (size_t j=i+1; j<n; j++) {
-            edgeProbability = (double) 1/(1+exp(-edgeParameters[i]-edgeParameters[j]));
+            edgeProbability = (double) 1/(1+exp(-edgePropensities[i]-edgePropensities[j]));
             if (uniform01Distribution(GRIT::generator) <= edgeProbability)
                 hypergraph.addEdge(i, j);
 
             for (size_t k=j+1; k<n; k++) {
-                triangleProbability = (double) 1/(1+exp(-triangleParameters[i]-triangleParameters[j]-triangleParameters[k]));
+                triangleProbability = (double) 1/(1+exp(-trianglePropensities[i]-trianglePropensities[j]-trianglePropensities[k]));
                 if (uniform01Distribution(GRIT::generator) <= triangleProbability)
                     hypergraph.addTriangle({i, j, k});
             }
