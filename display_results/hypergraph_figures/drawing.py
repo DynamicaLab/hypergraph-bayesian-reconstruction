@@ -24,7 +24,7 @@ edge_neg = "#922121"
 edge_pos = "#2c40a3"
 triangle_neg = edge_neg
 triangle_pos = edge_pos
-vertex_layout = networkx.drawing.layout.circular_layout
+vertex_layout = networkx.drawing.layout.kamada_kawai_layout
 
 
 def find_vertex_positions(hypergraph, with_correlation=True):

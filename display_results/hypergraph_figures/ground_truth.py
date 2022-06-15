@@ -27,7 +27,7 @@ sample_size = config["sampling", "sample size"]
 vertex_positions = None
 
 if args.g == "karate.json":
-    vertex_positions = np.loadtxt("make_figures/hypergraph_figures/karate.pos")
+    vertex_positions = np.loadtxt("display_results/hypergraph_figures/karate.pos")
 else:
     vertex_positions = drawing.find_vertex_positions(ground_truth)
 

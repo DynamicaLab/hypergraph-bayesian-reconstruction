@@ -42,7 +42,7 @@ if ground_truth_exists:
     fig, axes = pyplot.subplots(1, 1+len(args.models), figsize=( 4*(model_number+1)+1, 4))
 
     if args.g == "karate.json":
-        vertex_positions = np.loadtxt("make_figures/hypergraph_figures/karate.pos")
+        vertex_positions = np.loadtxt("display_results/hypergraph_figures/karate.pos")
     else:
         vertex_positions = drawing.find_vertex_positions(ground_truth, True)
 
@@ -72,21 +72,31 @@ for i, model in enumerate(inference_models):
     ax.set_axis_off()
     ax.set_title(f"{model.complete_name} posterior sample")
 
+sample_id = 0
+sample_id_text = axes[0].text(0.1, 0.9, f"$i={sample_id}$",
+     horizontalalignment='center',
+     verticalalignment='center',
+     transform = axes[0].transAxes)
 
 def update(frame):
+    global generators, sample_id, axes
+    sample_id += 1
+
     patches = []
     for i, model in enumerate(args.models):
-        global generators
         try:
             current_hypergraph = next(generators[i])[0]
         except StopIteration:
             generators = get_sample_generators(dataset_name, sample_size)
             current_hypergraph = next(generators[i])[0]
+            sample_id = 1
 
         ax = axes[i+ground_truth_exists]
         ax.patches.clear()
 
         drawing.drawHyperedges(current_hypergraph, ax, vertex_positions, model)
+
+    sample_id_text.set_text(f"$i={sample_id}$")
 
 
 anim = animation.FuncAnimation(fig, update, frames=100, interval=250, save_count=30)

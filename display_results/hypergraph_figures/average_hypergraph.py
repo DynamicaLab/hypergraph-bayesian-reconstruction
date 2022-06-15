@@ -37,7 +37,7 @@ if ground_truth_exists:
     fig, ax = pyplot.subplots(2, len(args.models)+(not args.o), figsize=( 4*(model_number+1)+1, 7))
 
     if args.g == "karate.json":
-        vertex_positions = np.loadtxt("make_figures/hypergraph_figures/karate.pos")
+        vertex_positions = np.loadtxt("display_results/hypergraph_figures/karate.pos")
     else:
         vertex_positions = drawing.find_vertex_positions(ground_truth, True)
 
