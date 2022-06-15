@@ -159,7 +159,7 @@ double HypergraphSixStepsProposer::getLogAcceptanceContribution() const {
 
         logAcceptance += (2*a-1)*(log(1-eta)-log(eta)) + (m-2)*(log(1-chi_not_a) - log(1-chi_a))
             + log(chi_not_a) - log(chi_a) + log(1-pow(1-chi_a, N_a)) - log(1-pow(1-chi_not_a, N_not_a+m))
-            + lgamma(N_a+1) + lgamma(N_not_a) - lgamma(N_not_a+m) - lgamma(N_a-m);
+            + lgamma(N_a+1) + lgamma(N_not_a+1) - lgamma(N_not_a+m+1) - lgamma(N_a-m+1);
     }
     else if (currentProposal.move == ADD) {
         if (currentProposal.moveType == SixStepsHypergraphProposal::EDGE) {
