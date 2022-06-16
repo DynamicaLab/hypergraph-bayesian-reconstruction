@@ -11,7 +11,7 @@ dataset_name = get_dataset_name(args)
 
 create_output_directories(dataset_name)
 if args.s:
-    print("New creating random hypergraph")
+    print("Creating new random hypergraph")
     hypergraph = generate_and_write_hypergraph(config, dataset_name)
 
 elif args.g:
