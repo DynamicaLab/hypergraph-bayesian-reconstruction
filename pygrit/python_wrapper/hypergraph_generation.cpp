@@ -220,8 +220,8 @@ GRIT::Hypergraph generateMillerConfigurationModelHypergraphWithGeometricDistribu
     }
 
     // Mersenne twister does not seem compatible with this function so the rng is not specified
-    random_shuffle(edgeStubs.begin(), edgeStubs.end());
-    random_shuffle(triangleWedges.begin(), triangleWedges.end());
+    std::shuffle(edgeStubs.begin(), edgeStubs.end());
+    std::shuffle(triangleWedges.begin(), triangleWedges.end());
 
 
     size_t stub1;
