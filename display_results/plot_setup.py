@@ -47,6 +47,11 @@ dark_model_colors = {
             "pes": darkorange,
             "per": green
         }
+model_markers = {
+            "phg": "o",
+            "pes": "s",
+            "per": "^"
+        }
 
 
 edgetype_colors = [midblack, green, yellow]

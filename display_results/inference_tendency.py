@@ -10,6 +10,7 @@ sys.path.append("../")
 import modeling.metrics as metrics
 from generation.hypergraph_generation import load_binary_hypergraph
 from generation.observations_generation import load_binary_observations
+from modeling.models import models
 from modeling.config import ConfigurationParserWithModels, get_json, get_dataset_name, get_config
 from modeling.output import metrics_filename, get_tendency_sampling_directory, observations_filename
 import pygrit
@@ -47,6 +48,14 @@ def compute_overlap(_p1, _p2, _mu1, _mu2):
     return 1/(p1+p2)*( p2*gammainc(mu2, k_c+1) + p1*gammaincc(mu1, k_c+1) )
 
 
+def get_model_kwargs(model_name):
+    return {
+        "label": models[model_name].name,
+        "color": plot_setup.model_colors[model_name],
+        "marker": plot_setup.model_markers[model_name]
+    }
+
+
 args = TendencyParser().parser.parse_args()
 observations_ids = np.arange(0, 10)
 
@@ -76,7 +85,8 @@ for model_name in args.models:
         aggregated_metrics = None
 
         for observation_id in observations_ids:
-            sampling_directory = get_tendency_sampling_directory(args, dataset_name, model_name, parameter_value, observation_id)
+            sampling_directory = get_tendency_sampling_directory(args, dataset_name,
+                                            model_name, parameter_value, observation_id)
             observations = np.load(os.path.join(sampling_directory, observations_filename))
             observations_sum = np.sum(observations)/2
 
@@ -84,11 +94,15 @@ for model_name in args.models:
             try:
                 model_metrics = get_json( metric_filename )
             except FileNotFoundError:
-                warnings.warn(f"Metrics for observation {observation_id} of parameter={parameter_value} not found for model {model_name}.")
+                warnings.warn(f"Metrics for observation {observation_id} of "
+                        "parameter={parameter_value} not found for model {model_name}.")
                 continue
 
             if aggregated_metrics is None:
-                aggregated_metrics = { key: [] for key in list(model_metrics.keys())+["class entropy", "confusion summary"] }
+                aggregated_metrics = {
+                    key: [] for key in
+                        list(model_metrics.keys())+["class entropy", "confusion summary"]
+                }
                 metric_names.update(model_metrics.keys())
                 metric_names.add("class entropy")
                 metric_names.add("confusion summary")
@@ -98,21 +112,26 @@ for model_name in args.models:
                     continue
 
                 if metric_name == metrics.ConfusionMatrix.name:
-                    corrected_metric = np.copy( np.array(metric_values[0]).reshape(3, 3) )
+                    C = np.copy( np.array(metric_values[0]).reshape(3, 3) )
                     # swap columns 2 and 3 if multiplex model predicts no strong edge
-                    if np.sum(corrected_metric[:, 2]) == 0 and model_name=="pes":
-                        corrected_metric.T[[1, 2]] = corrected_metric.T[[2, 1]]
+                    if np.sum(C[:, 2]) == 0 and model_name=="pes":
+                        C.T[[1, 2]] = C.T[[2, 1]]
 
-                    aggregated_metrics[metric_name].append(corrected_metric.ravel())
-                    class_proportions = np.sum(corrected_metric, axis=0).astype(np.double)
+                    aggregated_metrics[metric_name].append(C.ravel())
+                    class_proportions = np.sum(C, axis=0).astype(np.double)
                     class_proportions = class_proportions[class_proportions>0]
                     class_proportions /= np.sum(class_proportions)
-                    aggregated_metrics["class entropy"].append(np.sum(-class_proportions*np.log(class_proportions)/np.log(3)))
+                    aggregated_metrics["class entropy"].append(
+                            np.sum(-class_proportions*np.log(class_proportions)/np.log(3))
+                        )
 
-                    aggregated_metrics["confusion summary"].append( (corrected_metric[1, 2]+corrected_metric[2, 1]) / np.sum(corrected_metric[1:, 1:]) )
+                    pairwise_interaction_number = np.sum(C[1:])
+                    aggregated_metrics["confusion summary"].append(
+                            (pairwise_interaction_number-C[1, 1]-C[2, 2])/pairwise_interaction_number
+                        )
 
                     if confusion_matrix_normalization is None:
-                        edgetype_count = np.sum(corrected_metric, axis=1)
+                        edgetype_count = np.sum(C, axis=1)
                         confusion_matrix_proportions = edgetype_count/np.sum(edgetype_count)
                         confusion_matrix_normalization = np.diag(edgetype_count)
                         for i, j in [(0, 1), (0, 2), (1, 2)]:
@@ -134,7 +153,10 @@ for model_name in args.models:
                 continue
 
             if statistics[model_name].get(metric_name) is None:
-                statistics[model_name][metric_name] = { key: [] for key in ["mean", "std"]+["centile"+str(centile) for centile in percentiles] }
+                statistics[model_name][metric_name] = {
+                        key: [] for key in
+                            ["mean", "std"]+["centile"+str(centile) for centile in percentiles]
+                        }
             metric_statistics = statistics[model_name][metric_name]
 
             if metric_name not in [metrics.ConfusionMatrix.name, metrics.SumAbsoluteResiduals.name, metrics.SumResiduals.name]:
@@ -204,44 +226,61 @@ for metric_name in metric_names:
             for i, ax in enumerate(axes.ravel()):
                 col, row = i%3, i//3
 
-                get_element_stat = lambda stat: np.array(metric_statistics[stat])[:, i] / confusion_matrix_normalization[row, row]
+                stat = lambda stat: np.array(metric_statistics[stat])[:, i]/confusion_matrix_normalization[row, row]
 
-                ax.plot(parameter_values, get_element_stat("centile0.5"), label=model_name, color=color, marker=".", clip_on=False)
-                ax.fill_between(parameter_values, get_element_stat("centile0.025"), get_element_stat("centile0.975"), alpha=.1, color=color)
-                ax.fill_between(parameter_values, get_element_stat("centile0.25"),  get_element_stat("centile0.75"), alpha=.2, color=color)
+                ax.plot(parameter_values, stat("centile0.5"), **get_model_kwargs(model_name), clip_on=False)
+                ax.fill_between(parameter_values, stat("centile0.025"), stat("centile0.975"), alpha=.1, color=color)
+                ax.fill_between(parameter_values, stat("centile0.25"),  stat("centile0.75"), alpha=.2, color=color)
                 ax.set_ylim(-0.05, 1.05)
 
                 if col >= row:
                     transposed_index = col*3 + row
                     if col==row:
-                        get_element_stat_sum = get_element_stat
+                        normalized_stat = stat
                     else:
-                        get_element_stat_sum = lambda stat: (np.array(metric_statistics[stat])[:, i]+np.array(metric_statistics[stat])[:, transposed_index]) \
+                        normalized_stat = lambda name: (np.array(metric_statistics[name])[:, i]+np.array(metric_statistics[name])[:, transposed_index]) \
                                                                 / confusion_matrix_normalization[row, col]
 
-                    axes2[row, col].plot(parameter_values, get_element_stat_sum("centile0.5"), label=model_name, color=color, marker=".", clip_on=False)
-                    axes2[row, col].fill_between(parameter_values, get_element_stat_sum("centile0.025"), get_element_stat_sum("centile0.975"), alpha=.1, color=color)
-                    axes2[row, col].fill_between(parameter_values, get_element_stat_sum("centile0.25"),  get_element_stat_sum("centile0.75"), alpha=.2, color=color)
+                    axes2[row, col].plot(parameter_values, normalized_stat("centile0.5"), **get_model_kwargs(model_name), clip_on=False)
+                    axes2[row, col].fill_between(parameter_values, normalized_stat("centile0.025"), normalized_stat("centile0.975"), alpha=.1, color=color)
+                    axes2[row, col].fill_between(parameter_values, normalized_stat("centile0.25"), normalized_stat("centile0.75"), alpha=.2, color=color)
                     axes2[row, col].set_ylim(-.05, 1.05)
                     if col != row:
-                        axes2[row, col].plot(parameter_values, [compute_overlap(confusion_matrix_proportions[row], confusion_matrix_proportions[col], mu[row], mu[col]) for mu in full_param_values],
+                        axes2[row, col].plot(
+                                parameter_values,
+                                [
+                                    compute_overlap(
+                                        confusion_matrix_proportions[row],
+                                        confusion_matrix_proportions[col],
+                                        mu[row], mu[col]
+                                     )
+                                    for mu in full_param_values
+                                ],
                                 color="k")
                     else:
-                        axes2[row, col].plot(parameter_values, [1-sum([compute_overlap(confusion_matrix_proportions[row], confusion_matrix_proportions[i], mu[row], mu[i]) for i in range(3) if i!=row])
-                                                            for mu in full_param_values],
+                        axes2[row, col].plot(parameter_values,
+                                [
+                                    1-sum([
+                                            compute_overlap(confusion_matrix_proportions[row],
+                                                confusion_matrix_proportions[i], mu[row], mu[i]
+                                            )
+                                            for i in range(3) if i!=row
+                                        ])
+                                    for mu in full_param_values
+                                ],
                                 color="k")
 
 
         elif metric_name in [metrics.SumAbsoluteResiduals.name, metrics.SumResiduals.name]:
             for edgetype, ax in enumerate(axes):
-                get_element_stat = lambda stat: np.array(metric_statistics[stat])[:, edgetype]
+                stat = lambda name: np.array(metric_statistics[name])[:, edgetype]
 
-                ax.plot(parameter_values, get_element_stat("centile0.5"), label=model_name, color=color, marker=".")
-                ax.fill_between(parameter_values, get_element_stat("centile0.025"), get_element_stat("centile0.975"), alpha=.1, color=color)
-                ax.fill_between(parameter_values, get_element_stat("centile0.25"), get_element_stat("centile0.75"), alpha=.2, color=color)
+                ax.plot(parameter_values, stat("centile0.5"), **get_model_kwargs(model_name))
+                ax.fill_between(parameter_values, stat("centile0.025"), stat("centile0.975"), alpha=.1, color=color)
+                ax.fill_between(parameter_values, stat("centile0.25"), stat("centile0.75"), alpha=.2, color=color)
 
         else:
-            axes.plot(parameter_values, metric_statistics["centile0.5"], label=model_name, color=color, marker=".")
+            axes.plot(parameter_values, metric_statistics["centile0.5"], **get_model_kwargs(model_name))
             axes.fill_between(parameter_values, metric_statistics["centile0.025"], metric_statistics["centile0.975"], alpha=.1, color=color)
             axes.fill_between(parameter_values, metric_statistics["centile0.25"], metric_statistics["centile0.75"], alpha=.2, color=color)
 

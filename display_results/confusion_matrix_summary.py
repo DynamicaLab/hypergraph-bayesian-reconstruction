@@ -21,7 +21,7 @@ for model_name in args.models:
     for matrix in confusion_matrices[model_name]:
         m = np.array(matrix).reshape(3, 3)
         number_of_interactions = np.sum(m[1:])
-        summaries.append( (m[1, 2]+m[2, 1])/number_of_interactions )
+        summaries.append( (number_of_interactions-m[1,1]-m[2,2])/number_of_interactions )
 
     percentiles = [25, 50, 75]
     print(model_name, "quartiles", [f"{x:.3f}" for x in np.percentile(summaries, percentiles)])
