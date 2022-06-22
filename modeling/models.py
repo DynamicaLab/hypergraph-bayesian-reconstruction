@@ -202,7 +202,7 @@ class InferenceModel(ABC):
 
 class PHG(InferenceModel):
     name = "phg"
-    complete_name = "Hypergraph model"
+    complete_name = "Hypergraph"
     correlated = True
 
     def __init__(self, *args, **kwargs):
@@ -250,7 +250,7 @@ class PHG(InferenceModel):
 
 class PES(InferenceModel):
     name = "pes"
-    complete_name = "Multiplex model"
+    complete_name = "Categorical model"
     correlated = False
 
     def __init__(self, *args, **kwargs):
