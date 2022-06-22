@@ -4,6 +4,8 @@ import json
 from numpy.lib.function_base import percentile
 import warnings
 
+import plot_setup
+
 warnings.formatwarning = lambda msg, *args, **kwargs: f'Warning: {msg}\n'
 sys.path.append("../")
 
@@ -152,9 +154,21 @@ filename = os.path.join(
         f"tendency_data_mu{'1' if args.mu1 else '2'}.json"
     )
 
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
+
+
 with open(filename, 'w') as file_stream:
     plot_data = {
             "metrics": statistics.copy(),
             "confusion normalization": confusion_matrix_normalization
         }
-    json.dump(plot_data, file_stream)
+    json.dump(plot_data, file_stream, cls=NpEncoder)

@@ -10,7 +10,7 @@ import plot_setup
 sys.path.append("../")
 import modeling.metrics as metrics
 from modeling.models import models
-from modeling.config import ConfigurationParserWithModels, get_json, get_config
+from modeling.config import ConfigurationParserWithModels, get_dataset_name, get_json, get_config
 
 
 os.chdir("../")
@@ -61,9 +61,9 @@ def get_model_kwargs(model_name):
 
 
 def plot_tendency(ax, xvalues, stats, **kwargs):
-    ax.plot(parameter_values, normalized_stat(mid_centile), **kwargs)
-    ax.fill_between(parameter_values, normalized_stat(lowest_centile), normalized_stat(highest_centile), alpha=.1, color=color)
-    ax.fill_between(parameter_values, normalized_stat(low_centile), normalized_stat(high_centile), alpha=.2, color=color)
+    ax.plot(parameter_values, stats(mid_centile), **kwargs)
+    ax.fill_between(parameter_values, stats(lowest_centile), stats(highest_centile), alpha=.1, color=color)
+    ax.fill_between(parameter_values, stats(low_centile), stats(high_centile), alpha=.2, color=color)
 
 
 args = TendencyParser().parser.parse_args()
@@ -85,8 +85,10 @@ if args.mu1:
 elif args.mu2:
     parameter_values = config["tendency", "varying mu2", "mu2"]
 
+metrics_data = tendency_data["metrics"]
+metric_names = set(sum([list(metrics_data[model].keys()) for model in metrics_data], []))
 
-for metric_name in tendency_data["metrics"]:
+for metric_name in metric_names:
     if metric_name == metrics.PairwiseObservationsAverage.name:
         continue
 
@@ -114,13 +116,17 @@ for metric_name in tendency_data["metrics"]:
 
 
     for model_name in args.models:
-        metric_statistics = tendency_data["metrics"][model_name].get(metric_name)
+        metric_statistics = metrics_data[model_name].get(metric_name)
+        if metric_statistics is None:
+            print(f"Warning: No statistics found for metric {metric_name} and model {model_name}.")
+            continue
+
         color = plot_setup.model_colors[model_name]
 
         if metric_name == metrics.ConfusionMatrix.name:
             for i, ax in enumerate(axes.ravel()):
                 row = i % 3
-                stat = lambda stat: np.array(metric_statistics[stat])[:, i]/confusion_matrix_normalization[row, row]
+                stat = lambda stat: np.array(metric_statistics[stat])[:, i]/confusion_matrix_normalization[row][row]
                 plot_tendency(ax, parameter_values, stat,
                                 **get_model_kwargs(model_name), clip_on=False)
                 ax.set_ylim(-0.05, 1.05)

@@ -49,8 +49,8 @@ dark_model_colors = {
         }
 model_markers = {
             "phg": "o",
-            "pes": "s",
-            "per": "^"
+            "pes": "^",
+            "per": "s"
         }
 
 
