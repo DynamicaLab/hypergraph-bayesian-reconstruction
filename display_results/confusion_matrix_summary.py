@@ -24,4 +24,4 @@ for model_name in args.models:
         summaries.append( (number_of_interactions-m[1,1]-m[2,2])/number_of_interactions )
 
     percentiles = [25, 50, 75]
-    print(model_name, "quartiles", [f"{x:.3f}" for x in np.percentile(summaries, percentiles)])
+    print(model_name, "quartiles", [f"{x:.2f}" for x in np.percentile(summaries, percentiles)])
