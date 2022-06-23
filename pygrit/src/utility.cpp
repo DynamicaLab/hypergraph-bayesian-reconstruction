@@ -235,7 +235,7 @@ double drawFromLinearDistribution(double inf, double sup, double slope) {
 size_t drawFromShiftedGeometricDistribution(double p, size_t N) {
     double u = uniform_real_distribution<double>(0, 1)(GRIT::generator);
 
-    return std::floor( log(1.-u*(1-pow(1-p, N+1)))/log(1-p) + 1 );
+    return std::floor( log(1.-u*(1-pow(1-p, N-1)))/log(1-p) + 2 );
 }
 
 } //namespace GRIT
