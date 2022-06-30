@@ -36,7 +36,6 @@ if args.o:
 config = get_config(args)
 dataset_name = get_dataset_name(args)
 
-
 statistics = {}
 percentiles = np.array([0.025, 0.25, 0.5, 0.75, 0.975])
 
@@ -81,7 +80,7 @@ for model_name in args.models:
                 if metric_name == metrics.ConfusionMatrix.name:
                     C = np.copy( np.array(metric_values[0]).reshape(3, 3) )
                     # swap columns 2 and 3 if multiplex model predicts no strong edge
-                    if np.sum(C[:, 2]) == 0 and model_name=="pes":
+                    if np.sum(C[:, 2]) == 0 and model_name=="pes" and args.mu1:
                         C.T[[1, 2]] = C.T[[2, 1]]
 
                     aggregated_metrics[metric_name].append(C.ravel())
@@ -147,7 +146,7 @@ for parameter_value in parameter_values.copy():
 
 figures_directory = plot_setup.get_figure_dir(dataset_name)
 if not os.path.isdir(figures_directory):
-    os.mkdir(figures_directory)
+    os.makedirs(figures_directory)
 
 filename = os.path.join(
         figures_directory,
