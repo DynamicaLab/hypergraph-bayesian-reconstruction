@@ -9,7 +9,7 @@ import plot_setup
 
 sys.path.append("../")
 import modeling.metrics as metrics
-from modeling.models import models
+from modeling.models import PES, PHG
 from modeling.config import ConfigurationParserWithModels, get_dataset_name, get_json, get_config
 
 
@@ -53,10 +53,17 @@ def compute_overlap(_p1, _p2, _mu1, _mu2):
 
 
 def get_model_kwargs(model_name):
+    corrected_name = model_name
+    if model_name == PES.name:
+        corrected_name = "Categorical"
+    elif model_name == PHG.name:
+        corrected_name = "Hypergraph"
+
     return {
-        "label": models[model_name].name,
+        "label": corrected_name,
         "color": plot_setup.model_colors[model_name],
-        "marker": plot_setup.model_markers[model_name]
+        "marker": plot_setup.model_markers[model_name],
+        "markersize": 4
     }
 
 
@@ -64,6 +71,16 @@ def plot_tendency(ax, xvalues, stats, **kwargs):
     ax.plot(parameter_values, stats(mid_centile), **kwargs)
     ax.fill_between(parameter_values, stats(lowest_centile), stats(highest_centile), alpha=.1, color=color)
     ax.fill_between(parameter_values, stats(low_centile), stats(high_centile), alpha=.2, color=color)
+
+
+def get_article_ylabel(metric_name):
+    if metric_name == metrics.SumResiduals.name:
+        return "Residuals"
+    elif metric_name == "confusion summary":
+        return "$\\epsilon$"
+    elif metric_name == "class entropy":
+        return "$S$"
+    return metric_name
 
 
 args = TendencyParser().parser.parse_args()
@@ -88,31 +105,37 @@ elif args.mu2:
 metrics_data = tendency_data["metrics"]
 metric_names = set(sum([list(metrics_data[model].keys()) for model in metrics_data], []))
 
+
 for metric_name in metric_names:
     if metric_name == metrics.PairwiseObservationsAverage.name:
         continue
 
     varied_parameter = "$\\mu_1$" if args.mu1 else "$\\mu_2$"
 
+    fig_size = (plot_setup.fig_width, plot_setup.fig_height)
+    width, height = fig_size
+
     if metric_name == metrics.ConfusionMatrix.name:
-        fig, axes = pyplot.subplots(3, 3, figsize=(7, 4), sharex=True)
+        fig, axes = pyplot.subplots(3, 3, figsize=(width, height*1.5), sharex=True)
         for i, hyperedge_type in enumerate(["Hole", "Edge", "Triangle"]):
             axes[i, 0].set_ylabel(r"$\ell_{ij}="+str(i)+"$")
-            axes[i, 0].yaxis.set_label_coords(-0.3, 0.5)
             axes[2, i].set_xlabel(varied_parameter)
-            axes[0, i].set_title(r"$\hat\ell_{ij}="+str(i)+"$")
+            axes[0, i].set_title(r"$F(\hat \ell_{ij}="+str(i)+")$")
 
     elif metric_name in [metrics.SumAbsoluteResiduals.name, metrics.SumResiduals.name]:
-        fig, axes = pyplot.subplots(1, 3, figsize=(8, 3))
+
+        fig, axes = pyplot.subplots(1, 3, figsize=fig_size)
         for edgetype, ax in enumerate(axes):
             ax.set_xlabel(varied_parameter)
             ax.set_title("$\\ell_{ij}="+str(edgetype)+"$")
-        axes[0].set_ylabel(metric_name)
+            ax.tick_params(axis="both", direction='in')
+        axes[0].set_ylabel(get_article_ylabel(metric_name))
 
     else:
-        fig, axes = pyplot.subplots(1, figsize=(6, 4))
+        fig, axes = pyplot.subplots(1, figsize=(width/2, height))
         axes.set_xlabel(varied_parameter)
-        axes.set_ylabel(metric_name)
+        axes.set_ylabel(get_article_ylabel(metric_name))
+        axes.tick_params(axis="both", direction='in')
 
 
     for model_name in args.models:
@@ -141,7 +164,8 @@ for metric_name in metric_names:
             stat = lambda name: metric_statistics[name]
             plot_tendency(axes, parameter_values, stat, **get_model_kwargs(model_name))
 
-    pyplot.legend()
+    if metric_name == "confusion summary":
+        pyplot.legend()
     fig.tight_layout()
     fig.subplots_adjust(hspace=.185, wspace=.285)
     fig.savefig(figures_directory+f"/{metric_name}_{'mu1' if args.mu1 else 'mu2'}.pdf", bbox_inches='tight')

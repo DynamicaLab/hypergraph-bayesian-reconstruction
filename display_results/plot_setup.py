@@ -15,10 +15,11 @@ green = "#4E994B"
 yellow = "#F6AE2D"
 
 
-rcParams["font.family"] = "Computer Modern"
+rcParams["font.family"] = "CMU"
 rcParams["font.size"] = 16
 rcParams["text.usetex"] = True
 
+rcParams["axes.titlesize"] = 16
 rcParams["axes.labelsize"] = 16
 rcParams["axes.facecolor"] = "white"
 rcParams["axes.grid"] = False
@@ -33,7 +34,7 @@ rcParams["ytick.color"] = midblack
 
 rcParams['legend.frameon'] = 'False'
 rcParams["legend.edgecolor"] = "white"
-rcParams["legend.fontsize"] = 14
+rcParams["legend.fontsize"] = 12
 rcParams["text.color"] = midblack
 
 
@@ -59,3 +60,7 @@ edgetype_markers = ["x", ".", "^"]
 edgetype_ls = ["--", "-", ":"]
 
 get_figure_dir = lambda dataset: os.path.join(os.getcwd(), "figures", dataset)
+
+inches_per_pt = 1/72.27
+fig_width = 2*inches_per_pt*246 # width of article column
+fig_height = fig_width/3
