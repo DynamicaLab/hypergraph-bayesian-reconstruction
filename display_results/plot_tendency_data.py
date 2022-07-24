@@ -69,8 +69,10 @@ def get_model_kwargs(model_name):
 
 def plot_tendency(ax, xvalues, stats, **kwargs):
     ax.plot(parameter_values, stats(mid_centile), **kwargs)
-    ax.fill_between(parameter_values, stats(lowest_centile), stats(highest_centile), alpha=.1, color=color)
-    ax.fill_between(parameter_values, stats(low_centile), stats(high_centile), alpha=.2, color=color)
+    ax.fill_between(parameter_values, stats(lowest_centile), stats(highest_centile),
+            alpha=.12, color=color, edgecolor="none")
+    ax.fill_between(parameter_values, stats(low_centile), stats(high_centile),
+            alpha=.3, color=color, edgecolor="none")
 
 
 def get_article_ylabel(metric_name):
@@ -116,7 +118,7 @@ for metric_name in metric_names:
     width, height = fig_size
 
     if metric_name == metrics.ConfusionMatrix.name:
-        fig, axes = pyplot.subplots(3, 3, figsize=(width, height*1.5), sharex=True)
+        fig, axes = pyplot.subplots(3, 3, figsize=(width, height*2), sharex=True)
         for i, hyperedge_type in enumerate(["Hole", "Edge", "Triangle"]):
             axes[i, 0].set_ylabel(r"$\ell_{ij}="+str(i)+"$")
             axes[2, i].set_xlabel(varied_parameter)
