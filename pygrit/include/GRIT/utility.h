@@ -54,21 +54,21 @@ size_t nchoose3(size_t n);
 void createOrEmptyDirectory(const std::string& directory);
 long getFileSize(std::string filename);
 
-double truncGammaLogProb(double x, double inf, double a, double b);
+double truncGammaLogProb(double x, double inf, double k, double theta);
 
 size_t drawFromShiftedGeometricDistribution(double p, size_t N);
-double drawFromBeta(double a, double b);
-double drawFromTruncatedGamma(double inf, double sup, double a, double b, size_t maxit=1e5);
-double drawFromLowerTruncatedGamma(double inf, double a, double b, size_t maxit=1e6);
+double drawFromBeta(double k, double theta);
+double drawFromTruncatedGamma(double inf, double sup, double k, double theta, size_t maxit=1e5);
+double drawFromLowerTruncatedGamma(double inf, double k, double theta, size_t maxit=1e6);
 double drawFromLinearDistribution(double inf, double sup, double slope);
 
-double drawFromLowerTruncatedGammaITS(double sup, double a, double b);
-double drawFromUpperTruncatedGammaITS(double inf, double a, double b);
-double drawFromTruncatedGammaITS(double inf, double sup, double a, double b);
+double drawFromLowerTruncatedGammaITS(double sup, double k, double theta);
+double drawFromUpperTruncatedGammaITS(double inf, double k, double theta);
+double drawFromTruncatedGammaITS(double inf, double sup, double k, double theta);
 
-double drawTruncatedGammaWithLinearRS(double inf, double sup, double a, double b, size_t maxit=1e6);
-double drawTruncatedGammaWithGammaRS(double inf, double sup, double a, double b, size_t maxit=1e6);
-double drawTruncatedGammaWithUniformRS(double inf, double sup, double a, double b, size_t maxit=1e6);
+double drawTruncatedGammaWithLinearRS(double inf, double sup, double k, double theta, size_t maxit=1e6);
+double drawTruncatedGammaWithGammaRS(double inf, double sup, double k, double theta, size_t maxit=1e6);
+double drawTruncatedGammaWithUniformRS(double inf, double sup, double k, double theta, size_t maxit=1e6);
 
 void writeParametersToBinary(const Parameters& parameters, const std::string& filename);
 

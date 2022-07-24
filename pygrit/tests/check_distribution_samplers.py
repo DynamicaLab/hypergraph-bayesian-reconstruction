@@ -60,9 +60,9 @@ inf, sup = 5, 10
 
 # grit.sample_from_truncgamma
 setups = [("trunc gamma", [
-                    # (pygrit.sample_from_truncgamma_its, (*trunc_bound, a, b), "ITS"),
-                    # (pygrit.sample_from_truncgamma_gamma_rs, (*trunc_bound, a, b, maxit), "Gamma RS"),
-                    # (pygrit.sample_from_truncgamma_uniform_rs, (*trunc_bound, a, b, maxit), "Uniform RS"),
+                    (pygrit.sample_from_truncgamma_its, (*trunc_bound, a, b), "ITS"),
+                    (pygrit.sample_from_truncgamma_gamma_rs, (*trunc_bound, a, b, maxit), "Gamma RS"),
+                    (pygrit.sample_from_truncgamma_uniform_rs, (*trunc_bound, a, b, maxit), "Uniform RS"),
                     (pygrit.sample_from_truncgamma_linear_rs, (*trunc_bound, a, b, maxit), "Linear RS")
                 ],
                 truncgamma(*trunc_bound, a, b)),

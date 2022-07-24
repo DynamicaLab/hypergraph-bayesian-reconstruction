@@ -53,36 +53,36 @@ long getFileSize(std::string filename) {
     return rc == 0 ? stat_buf.st_size : -1;
 }
 
-double truncGammaLogProb(double x, double inf, double a, double b) {
-    return (a-1)*log(x) - b*x - boost::math::gamma_p(a, inf/b);
+double truncGammaLogProb(double x, double inf, double k, double theta) {
+    return (k-1)*log(x) - theta*x - boost::math::gamma_p(k, inf/theta);
 }
 
-double drawFromBeta(double a, double b){
-    double x = gamma_distribution<double>(a, 1)(generator);
-    double y = gamma_distribution<double>(b, 1)(generator);
+double drawFromBeta(double k, double theta){
+    double x = gamma_distribution<double>(k, 1)(generator);
+    double y = gamma_distribution<double>(theta, 1)(generator);
     return x/(x+y);
 }
 
 
-static double gammaPDF(double x, double a, double b) {
-    return boost::math::gamma_p_derivative(a, x / b) / b;
+static double gammaPDF(double x, double k, double theta) {
+    return boost::math::gamma_p_derivative(k, x / theta) / theta;
 }
 
-double drawTruncatedGammaWithUniformRS(double inf, double sup, double a, double b, size_t maxit) {
+double drawTruncatedGammaWithUniformRS(double inf, double sup, double k, double theta, size_t maxit) {
     if (sup <= inf)
         throw std::logic_error("Upper bound of truncated distribution must be superior to the lower bound");
 
-    double mode = (a-1)*b;
+    double mode = (k-1)*theta;
     double maxInSupport;
 
     if (mode > inf && mode < sup)
         maxInSupport = mode;
-    else if (gammaPDF(sup, a, b) > gammaPDF(inf, a, b))
+    else if (gammaPDF(sup, k, theta) > gammaPDF(inf, k, theta))
         maxInSupport = sup;
     else
         maxInSupport = inf;
 
-    double M = gammaPDF(maxInSupport, a, b);
+    double M = gammaPDF(maxInSupport, k, theta);
 
     uniform_real_distribution<double> uniform01Distribution(0, 1);
 
@@ -93,7 +93,7 @@ double drawTruncatedGammaWithUniformRS(double inf, double sup, double a, double 
         proposal = uniform01Distribution(generator)*(sup-inf)+inf;
         u = uniform01Distribution(generator);
 
-        if (u < gammaPDF(proposal, a, b)/M)
+        if (u < gammaPDF(proposal, k, theta)/M)
             sampleFound = true;
     }
     if (!sampleFound)
@@ -104,12 +104,12 @@ double drawTruncatedGammaWithUniformRS(double inf, double sup, double a, double 
     return proposal;
 }
 
-double drawTruncatedGammaWithLinearRS(double inf, double sup, double a, double b, size_t maxit) {
+double drawTruncatedGammaWithLinearRS(double inf, double sup, double k, double theta, size_t maxit) {
     if (sup <= inf)
         throw std::logic_error("Upper bound of truncated distribution must be superior to the lower bound");
 
     double interval = sup-inf;
-    double pdfInf(gammaPDF(inf, a, b)), pdfSup(gammaPDF(sup, a, b));
+    double pdfInf(gammaPDF(inf, k, theta)), pdfSup(gammaPDF(sup, k, theta));
 
     double slope = (pdfSup - pdfInf)/interval;
     double maxSlope = slope > 0 ? pdfSup/interval : pdfInf/interval;
@@ -117,7 +117,7 @@ double drawTruncatedGammaWithLinearRS(double inf, double sup, double a, double b
     double normalizedSlope = slope/maxSlope;
     auto linearPdf = [&](double x){ return .5*(1+normalizedSlope*( 2*(x-inf)/interval-1) ); };
 
-    double mode = (a-1)*b;
+    double mode = (k-1)*theta;
     double maxInSupport;
 
     if (mode > inf && mode < sup)
@@ -127,7 +127,7 @@ double drawTruncatedGammaWithLinearRS(double inf, double sup, double a, double b
     else
         maxInSupport = inf;
 
-    double M = gammaPDF(maxInSupport, a, b);
+    double M = gammaPDF(maxInSupport, k, theta);
     M = slope > 0 ? M/linearPdf(inf) : M/linearPdf(sup);
 
     uniform_real_distribution<double> uniform01Distribution(0, 1);
@@ -138,18 +138,18 @@ double drawTruncatedGammaWithLinearRS(double inf, double sup, double a, double b
         proposal = drawFromLinearDistribution(inf, sup, normalizedSlope);
         u = uniform01Distribution(generator);
 
-        if (u < gammaPDF(proposal, a, b)/M/linearPdf(proposal))
+        if (u < gammaPDF(proposal, k, theta)/M/linearPdf(proposal))
             return proposal;
     }
     return -1;
 }
 
-double drawTruncatedGammaWithGammaRS(double inf, double sup, double a, double b, size_t maxit) {
+double drawTruncatedGammaWithGammaRS(double inf, double sup, double k, double theta, size_t maxit) {
     if (sup <= inf)
         throw std::logic_error("Upper bound of truncated distribution must be superior to the lower bound");
 
 
-    auto proposalDistribution = gamma_distribution<double>(a, b);
+    auto proposalDistribution = gamma_distribution<double>(k, theta);
     double proposal;
 
     for (size_t i=0; i<maxit; i++){
@@ -161,31 +161,31 @@ double drawTruncatedGammaWithGammaRS(double inf, double sup, double a, double b,
     return -1;
 }
 
-double drawFromLowerTruncatedGammaITS(double inf, double a, double b) {
+double drawFromLowerTruncatedGammaITS(double inf, double k, double theta) {
     double u = uniform_real_distribution<double>(0, 1)(GRIT::generator);
     if (u == 0)
         return inf;
 
-    double rescaledDraw = u*boost::math::gamma_q(a, inf/b);
-    double sampled_parameter = boost::math::gamma_p_inv(a, rescaledDraw);
-    return sampled_parameter*b;
+    double rescaledDraw = u*boost::math::gamma_q(k, inf/theta);
+    double sampled_parameter = boost::math::gamma_p_inv(k, rescaledDraw);
+    return sampled_parameter*theta;
 }
 
-double drawFromUpperTruncatedGammaITS(double sup, double a, double b) {
+double drawFromUpperTruncatedGammaITS(double sup, double k, double theta) {
     double u = uniform_real_distribution<double>(0, 1)(GRIT::generator);
     if (u == 0)
         return 0;
     if (u == 1)
         return sup;
 
-    double rescaledDraw = u*boost::math::gamma_p(a, sup/b);
-    double sampled_parameter = boost::math::gamma_p_inv(a, rescaledDraw);
-    return sampled_parameter*b;
+    double rescaledDraw = u*boost::math::gamma_p(k, sup/theta);
+    double sampled_parameter = boost::math::gamma_p_inv(k, rescaledDraw);
+    return sampled_parameter*theta;
 }
 
-double drawFromTruncatedGammaITS(double inf, double sup, double a, double b) {
-    double cdfInf = boost::math::gamma_p(a, inf/b);
-    double cdfSup = boost::math::gamma_p(a, sup/b);
+double drawFromTruncatedGammaITS(double inf, double sup, double k, double theta) {
+    double cdfInf = boost::math::gamma_p(k, inf/theta);
+    double cdfSup = boost::math::gamma_p(k, sup/theta);
 
 
     size_t tries = 100;
@@ -194,7 +194,7 @@ double drawFromTruncatedGammaITS(double inf, double sup, double a, double b) {
 
         try {
             double rescaledDraw = u*(cdfSup-cdfInf) + cdfInf;
-            double sampled_parameter = b * boost::math::gamma_p_inv(a, rescaledDraw);
+            double sampled_parameter = theta * boost::math::gamma_p_inv(k, rescaledDraw);
             if (! (sampled_parameter > inf && sampled_parameter < sup) )
                 continue;
             return sampled_parameter;
@@ -203,24 +203,24 @@ double drawFromTruncatedGammaITS(double inf, double sup, double a, double b) {
     return -1;
 }
 
-double drawFromTruncatedGamma(double inf, double sup, double a, double b, size_t maxit) {
+double drawFromTruncatedGamma(double inf, double sup, double k, double theta, size_t maxit) {
     double rejectionProbability = inf>0 ?
-        boost::math::gamma_p(a, inf/b) + boost::math::gamma_q(a, sup/b) :
-        boost::math::gamma_q(a, sup/b);
+        boost::math::gamma_p(k, inf/theta) + boost::math::gamma_q(k, sup/theta) :
+        boost::math::gamma_q(k, sup/theta);
 
     double sample=-1;
     if (rejectionProbability < .5/maxit)
-        sample = drawTruncatedGammaWithGammaRS(inf, sup, a, b, maxit);
+        sample = drawTruncatedGammaWithGammaRS(inf, sup, k, theta, maxit);
 
     if (sample == -1)
-        sample = drawFromTruncatedGammaITS(inf, sup, a, b);
+        sample = drawFromTruncatedGammaITS(inf, sup, k, theta);
 
     if (sample == -1)
-        sample = drawTruncatedGammaWithLinearRS(inf, sup, a, b, maxit);
+        sample = drawTruncatedGammaWithLinearRS(inf, sup, k, theta, maxit);
 
     if (sample == -1)
         throw runtime_error("Could not sample from the truncated gamma distribution ["+to_string(inf)+", "+to_string(sup)+"] with parameters"+
-                            " a="+std::to_string(a)+" b="+std::to_string(b)+" with any sampling method." );
+                            " k="+std::to_string(k)+" theta="+std::to_string(theta)+" with any sampling method." );
     return sample;
 }
 
