@@ -16,3 +16,4 @@ compile_commands.json
 config/*/*.json
 !config/default.json
 datasets/hypergraphs/
+overleaf-article/
