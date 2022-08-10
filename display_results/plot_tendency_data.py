@@ -70,14 +70,14 @@ def get_model_kwargs(model_name):
 def plot_tendency(ax, xvalues, stats, **kwargs):
     ax.plot(parameter_values, stats(mid_centile), **kwargs)
     ax.fill_between(parameter_values, stats(lowest_centile), stats(highest_centile),
-            alpha=.12, color=color, edgecolor="none")
+            alpha=.2, color=color, edgecolor="none")
     ax.fill_between(parameter_values, stats(low_centile), stats(high_centile),
-            alpha=.3, color=color, edgecolor="none")
+            alpha=.5, color=color, edgecolor="none")
 
 
 def get_article_ylabel(metric_name):
     if metric_name == metrics.SumResiduals.name:
-        return "Residuals"
+        return "$R_k$"
     elif metric_name == "confusion summary":
         return "$\\epsilon$"
     elif metric_name == "class entropy":
@@ -119,7 +119,7 @@ for metric_name in metric_names:
 
     if metric_name == metrics.ConfusionMatrix.name:
         fig, axes = pyplot.subplots(3, 3, figsize=(width, height*2), sharex=True)
-        for i, hyperedge_type in enumerate(["Hole", "Edge", "Triangle"]):
+        for i in range(3):
             axes[i, 0].set_ylabel(r"$\ell_{ij}="+str(i)+"$")
             axes[2, i].set_xlabel(varied_parameter)
             axes[0, i].set_title(r"$F(\hat \ell_{ij}="+str(i)+")$")
@@ -129,7 +129,7 @@ for metric_name in metric_names:
         fig, axes = pyplot.subplots(1, 3, figsize=fig_size)
         for edgetype, ax in enumerate(axes):
             ax.set_xlabel(varied_parameter)
-            ax.set_title("$\\ell_{ij}="+str(edgetype)+"$")
+            ax.set_title(f"Type-{edgetype}")
             ax.tick_params(axis="both", direction='in')
         axes[0].set_ylabel(get_article_ylabel(metric_name))
 
