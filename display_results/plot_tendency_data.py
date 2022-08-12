@@ -77,11 +77,11 @@ def plot_tendency(ax, xvalues, stats, **kwargs):
 
 def get_article_ylabel(metric_name):
     if metric_name == metrics.SumResiduals.name:
-        return "$R_k$"
+        return "Residuals $R_k$"
     elif metric_name == "confusion summary":
-        return "$\\epsilon$"
+        return "Error $\\epsilon$"
     elif metric_name == "class entropy":
-        return "$S$"
+        return "Entropy $S$"
     return metric_name
 
 
