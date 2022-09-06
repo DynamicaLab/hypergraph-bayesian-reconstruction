@@ -12,4 +12,4 @@ target_link_libraries(GibbsBase gtest gtest_main GRIT)
 
 add_test(TriangleList TriangleList)
 add_test(Hypergraph Hypergraph)
-add_test(GibbsBase Hypergraph)
+add_test(GibbsBase GibbsBase)

@@ -2,7 +2,6 @@
 
 #include "GRIT/utility.h"
 #include "GRIT/proposers/triangle-choosers/observations_by_pairs_chooser.h"
-#include "GRIT/proposers/triangle-choosers/triplet_three_steps.h"
 #include "GRIT/proposers/triangle-choosers/uniform_triangle_chooser.h"
 
 

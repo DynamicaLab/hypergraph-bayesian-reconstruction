@@ -2,10 +2,8 @@
 
 #include "GRIT/utility.h"
 #include "GRIT/proposers/edge-choosers/uniform_edge_chooser.h"
-#include "GRIT/proposers/edge-choosers/weighted_chooser.h"
 #include "GRIT/proposers/edge-choosers/weighted_unique_chooser.h"
 #include "GRIT/proposers/edge-choosers/weighted_two-layers_chooser.h"
-#include "GRIT/proposers/edge-choosers/sep-weighted_unique_chooser.h"
 
 
 using namespace std;
@@ -38,50 +36,23 @@ class HypergraphAndObservationsTestCase: public::testing::Test{
 
 #define for_ij_in_observations\
     for (size_t i=0; i<observations.size(); i++)\
-        for (size_t j=i+1; j<observations.size(); j++) {
+        for (size_t j=i+1; j<observations.size(); j++)
 
 #define EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS(expectedValue, method, move)\
     EXPECT_DOUBLE_EQ( expectedValue, chooser. method ({i, j}, move) );\
     EXPECT_DOUBLE_EQ( expectedValue, chooser. method ({j, i}, move) )
 
-TEST_F(HypergraphAndObservationsTestCase, observationsWeightedChooser_expect_correctForwardProbabilities) {
-    ObservationsWeightedEdgeChooser chooser(observations);
-
-    double weightSum = 0;
-    for_ij_in_observations
-        weightSum += observations[i][j]+1;
-    }
-
-    for_ij_in_observations
-        double weight = observations[i][j]+1;
-        EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS(weight/weightSum, getForwardProbability, ADD);
-    }
-}
-
-TEST_F(HypergraphAndObservationsTestCase, observationsWeightedChooser_expect_correctReverseProbabilities) {
-    ObservationsWeightedEdgeChooser chooser(observations);
-
-    double weightSum = 0;
-    for_ij_in_observations
-        weightSum += observations[i][j]+1;
-    }
-
-    for_ij_in_observations
-        double weight = observations[i][j]+1;
-        EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS(weight/weightSum, getForwardProbability, REMOVE);
-    }
-}
 
 TEST_F(HypergraphAndObservationsTestCase, uniqueWeightedChooser_expect_correctForwardProbabilities) {
     ObservationsWeightedUniqueEdgeChooser chooser(observations, hypergraph);
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) == 0)
             weightSum += observations[i][j]+1;
     }
 
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) == 0) {
             double weight = observations[i][j]+1;
             EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS(weight/weightSum, getForwardProbability, ADD);
@@ -97,12 +68,12 @@ TEST_F(HypergraphAndObservationsTestCase, uniqueWeightedChooser_expect_correctRe
     ObservationsWeightedUniqueEdgeChooser chooser(observations, hypergraph);
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) == 0)
             weightSum += observations[i][j]+1;
     }
 
-    for_ij_in_observations
+    for_ij_in_observations{
         double weight = observations[i][j]+1;
         if (hypergraph.getEdgeMultiplicity(i,j) == 1) {
             EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( weight/(weightSum+weight), getReverseProbability, REMOVE );
@@ -121,12 +92,12 @@ TEST_F(HypergraphAndObservationsTestCase, uniqueWeightedChooser_expect_addEdgeTo
     hypergraph.removeEdge(0, 2);  // important because chooser probabilities rely on hypergraph
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) == 0)
             weightSum += observations[i][j]+1;
     }
 
-    for_ij_in_observations
+    for_ij_in_observations{
         double weight = observations[i][j]+1;
         if (hypergraph.getEdgeMultiplicity(i, j) == 0) {
             EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( weight/weightSum, getForwardProbability, ADD);
@@ -153,12 +124,12 @@ TEST_F(HypergraphAndObservationsTestCase, uniqueWeightedChooser_expect_removeEdg
     hypergraph.addEdge(0, 3);  // important because chooser probabilities rely on hypergraph
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) == 0)
             weightSum += observations[i][j]+1;
     }
 
-    for_ij_in_observations
+    for_ij_in_observations{
         double weight = observations[i][j]+1;
 
         if (hypergraph.getEdgeMultiplicity(i, j) == 0) {
@@ -184,7 +155,7 @@ TEST_F(HypergraphAndObservationsTestCase, nonZeroChooser_expect_correctForwardPr
 
     size_t edgeNumber = hypergraph.getEdgeNumber();
 
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) > 0) {
             EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( 1./edgeNumber, getForwardProbability, REMOVE );
         }
@@ -200,7 +171,7 @@ TEST_F(HypergraphAndObservationsTestCase, nonZeroChooser_expect_correctReversePr
 
     size_t edgeNumber = hypergraph.getEdgeNumber();
 
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) == 0) {
             EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( 1./(edgeNumber+1), getReverseProbability, ADD);
         }
@@ -217,7 +188,7 @@ TEST_F(HypergraphAndObservationsTestCase, nonZeroChooser_expect_removeEdgeFromDi
     hypergraph.addEdge(0, 3); // important because chooser probabilities rely on hypergraph
     size_t edgeNumber = hypergraph.getEdgeNumber();
 
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) > 0) {
             EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( 1./edgeNumber, getForwardProbability, REMOVE );
         }
@@ -243,7 +214,7 @@ TEST_F(HypergraphAndObservationsTestCase, nonZeroChooser_expect_addEdgeToDistrib
     hypergraph.removeEdge(0, 2); // important because chooser probabilities rely on hypergraph
     size_t edgeNumber = hypergraph.getEdgeNumber();
 
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) > 0) {
             EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( 1./edgeNumber, getForwardProbability, REMOVE );
         }
@@ -266,12 +237,12 @@ TEST_F(HypergraphAndObservationsTestCase, twoLayersWeighted_expect_correctForwar
     TwoLayersObservationsWeightedEdgeChooser chooser(observations, hypergraph);
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) < 2)
             weightSum += observations[i][j]+1;
     }
 
-    for_ij_in_observations
+    for_ij_in_observations{
         double weight = observations[i][j]+1;
 
         if (hypergraph.getEdgeMultiplicity(i, j) < 2) {
@@ -288,12 +259,12 @@ TEST_F(HypergraphAndObservationsTestCase, twoLayersWeighted_expect_correctRevers
     TwoLayersObservationsWeightedEdgeChooser chooser(observations, hypergraph);
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) < 2)
             weightSum += observations[i][j]+1;
     }
 
-    for_ij_in_observations
+    for_ij_in_observations{
         double weight = observations[i][j]+1;
 
         size_t edgeMultiplicity = hypergraph.getEdgeMultiplicity(i, j);
@@ -307,7 +278,7 @@ TEST_F(HypergraphAndObservationsTestCase, twoLayersWeighted_expect_correctRevers
 }
 
 #define VERIFY_PROBS_TWOLAYERSWEIGHTED\
-    for_ij_in_observations\
+    for_ij_in_observations{\
         double weight = observations[i][j]+1;\
         size_t edgeMultiplicity = hypergraph.getEdgeMultiplicity(i, j);\
 \
@@ -326,7 +297,7 @@ TEST_F(HypergraphAndObservationsTestCase, twoLayersWeighted_expect_probabilities
     chooser.updateProbabilities({0, 3}, ADD);
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) < 2)
             weightSum += observations[i][j]+1;
     }
@@ -340,7 +311,7 @@ TEST_F(HypergraphAndObservationsTestCase, twoLayersWeighted_expect_edgeRemovedFr
     hypergraph.addEdge(0, 2);
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) < 2)
             weightSum += observations[i][j]+1;
     }
@@ -353,7 +324,7 @@ TEST_F(HypergraphAndObservationsTestCase, twoLayersWeighted_expect_distributionU
     chooser.updateProbabilities({1, 2}, REMOVE);
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) < 2)
             weightSum += observations[i][j]+1;
     }
@@ -367,57 +338,11 @@ TEST_F(HypergraphAndObservationsTestCase, twoLayersWeighted_expect_edgeAddedToDi
     hypergraph.removeEdge(0, 1);
 
     double weightSum = 0;
-    for_ij_in_observations
+    for_ij_in_observations{
         if (hypergraph.getEdgeMultiplicity(i, j) < 2)
             weightSum += observations[i][j]+1;
     }
 
 
     VERIFY_PROBS_TWOLAYERSWEIGHTED
-}
-
-#define VERIFY_PROBS_SEP_UNIQUE_WEIGHTED\
-        double weight = observations[i][j]+1;\
-\
-        if (!hypergraph.isEdge(i, j)) {\
-            if (weight == 1){\
-                EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( notObservedProb*weight/weightSum_noObservations, getForwardProbability, ADD );\
-            }\
-            else {\
-                EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( (1-notObservedProb)*weight/weightSum_observations, getForwardProbability, ADD );\
-            }\
-            EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( 0, getReverseProbability, REMOVE );\
-        }\
-        else {\
-            if (weight == 1){\
-                EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( notObservedProb*weight/(weightSum_noObservations+weight), getReverseProbability, REMOVE );\
-            }\
-            else {\
-                EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( (1-notObservedProb)*weight/(weightSum_observations+weight), getReverseProbability, REMOVE );\
-            }\
-        }
-
-TEST_F(HypergraphAndObservationsTestCase, sepUniqueWeighted_expect_correctProbabilities_when_constructed) {
-    double notObservedProb = .1;
-    SeparatedWeightedUniqueEdgeChooser chooser(observations, hypergraph, notObservedProb);
-
-    double weightSum_noObservations = 0;
-    double weightSum_observations = 0;
-    for_ij_in_observations
-        if (!hypergraph.isEdge(i, j)) {
-            if (observations[i][j]==0)
-                weightSum_noObservations += 1;
-            else
-                weightSum_observations += observations[i][j]+1;
-        }
-    }
-
-    for_ij_in_observations\
-        if (i==1 && j==0 || i==0 && j==1) { // Edge case because edge (0,1) has multiplicity 2
-            EXPECT_DOUBLE_EQ_BOTH_DIRECTIONS( 0, getReverseProbability, REMOVE );
-        }
-        else {
-            VERIFY_PROBS_SEP_UNIQUE_WEIGHTED
-        }
-    }
 }

@@ -120,10 +120,11 @@ void HypergraphSixStepsProposer::proposeHiddenEdges() {
 
     else {
         double chi = currentProposal.move == REMOVE ? chi_0: chi_1;
-        const size_t changedPairsNumber = drawFromShiftedGeometricDistribution(chi, currentProposal.changedPairs.size());
+        const size_t changedPairsNumber = drawFromShiftedGeometricDistribution(chi, currentProposal.maximumChangedPairsNumber);
 
         std::list<Edge> chosenPairs;
-        std::sample(currentProposal.changedPairs.begin(), currentProposal.changedPairs.end(), std::back_insert_iterator<std::list<Edge>>(chosenPairs), changedPairsNumber, generator);
+        std::sample(currentProposal.changedPairs.begin(), currentProposal.changedPairs.end(),
+                std::back_insert_iterator<std::list<Edge>>(chosenPairs), changedPairsNumber, generator);
 
         currentProposal.unchangedPairsNumber += currentProposal.changedPairs.size() - chosenPairs.size();
         currentProposal.changedPairs = std::set<Edge>(chosenPairs.begin(), chosenPairs.end());
@@ -157,9 +158,10 @@ double HypergraphSixStepsProposer::getLogAcceptanceContribution() const {
         const auto& N_a = currentProposal.maximumChangedPairsNumber;
         const auto& N_not_a = pairsUnder3edgeNumber-N_a;
 
-        logAcceptance += (2*a-1)*(log(1-eta)-log(eta)) + (m-2)*(log(1-chi_not_a) - log(1-chi_a))
-            + log(chi_not_a) - log(chi_a) + log(1-pow(1-chi_a, N_a)) - log(1-pow(1-chi_not_a, N_not_a+m))
-            + lgamma(N_a+1) + lgamma(N_not_a+1) - lgamma(N_not_a+m+1) - lgamma(N_a-m+1);
+        logAcceptance += (2*a-1)*(log(1-eta)-log(eta)) +
+            (m-2)*(log(1-chi_not_a) - log(1-chi_a))
+            + log(chi_not_a) - log(chi_a) + log(1-pow(1-chi_a, N_a-1)) - log(1-pow(1-chi_not_a, N_not_a+m-1))
+            + lgamma(N_not_a+1) - lgamma(N_not_a+m+1) + lgamma(N_a+1) - lgamma(N_a-m+1);
     }
     else if (currentProposal.move == ADD) {
         if (currentProposal.moveType == SixStepsHypergraphProposal::EDGE) {

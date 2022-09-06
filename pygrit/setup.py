@@ -53,7 +53,6 @@ ext_modules = [
             "src/observations-models/poisson_hypergraph.cpp",
             "src/observations-models/poisson_edgestrength.cpp",
 
-            "src/hypergraph-models/independent_triangles.cpp",
             "src/hypergraph-models/independent_hyperedges.cpp",
             "src/hypergraph-models/edgestrength.cpp",
             "src/hypergraph-models/gilbert.cpp",
@@ -61,23 +60,15 @@ ext_modules = [
             "src/parameters-samplers/poisson_edgestrength.cpp",
             "src/parameters-samplers/poisson_gilbert.cpp",
             "src/parameters-samplers/poisson_independent_hyperedges.cpp",
-            "src/parameters-samplers/poisson_independent_hyperedges_ordered.cpp",
 
             "src/proposers/twosteps_edges.cpp",
-            "src/proposers/twosteps_triangle.cpp",
-            "src/proposers/foursteps_hypergraph.cpp",
             "src/proposers/sixsteps_hypergraph.cpp",
 
             "src/proposers/edge-choosers/uniform_edge_chooser.cpp",
-            "src/proposers/edge-choosers/weighted_chooser.cpp",
             "src/proposers/edge-choosers/weighted_two-layers_chooser.cpp",
             "src/proposers/edge-choosers/weighted_unique_chooser.cpp",
-            "src/proposers/edge-choosers/sep-weighted_unique_chooser.cpp",
 
             "src/proposers/triangle-choosers/observations_by_pair_chooser.cpp",
-            "src/proposers/triangle-choosers/random_chooser.cpp",
-            "src/proposers/triangle-choosers/triplet_three_steps.cpp",
-            "src/proposers/triangle-choosers/triplet_weighted.cpp",
             "src/proposers/triangle-choosers/uniform_triangle_chooser.cpp",
         ],
         language='c++',

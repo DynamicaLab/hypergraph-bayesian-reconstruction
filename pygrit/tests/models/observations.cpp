@@ -65,77 +65,77 @@ class EdgeStrengthGraphTestCase: public::testing::Test{
 
 
 TEST_F(HypergraphTestCase, hyperedgeProposal_when_addTriangleWithEveryHyperedgeTypeUnder) {
-    PoissonHypergraphObservationsModel dataModel(graph, parameters, observations);
+    PoissonHypergraphObservationsModel observationsModel(graph, parameters, observations);
 
     FourStepsHypergraphProposal proposal { ADD, FourStepsHypergraphProposal::TRIANGLE, 0, 3, 4 };
     const size_t& ij = observations[proposal.i][proposal.j];
     const size_t& ik = observations[proposal.i][proposal.k];
     const size_t& jk = observations[proposal.j][proposal.k];
 
-    EXPECT_DOUBLE_EQ(dataModel(proposal), (double) ik*log(mu2/mu1) + (double) jk*log(mu2/mu0) - (mu2-mu1) - (mu2-mu0));
+    EXPECT_DOUBLE_EQ(observationsModel(proposal), (double) ik*log(mu2/mu1) + (double) jk*log(mu2/mu0) - (mu2-mu1) - (mu2-mu0));
 }
 
 TEST_F(HypergraphTestCase, hyperedgeProposal_when_removeTriangleWithEveryHyperedgeTypeUnder) {
-    PoissonHypergraphObservationsModel dataModel(graph, parameters, observations);
+    PoissonHypergraphObservationsModel observationsModel(graph, parameters, observations);
 
     FourStepsHypergraphProposal proposal { REMOVE, FourStepsHypergraphProposal::TRIANGLE, 0, 3, 4 };
     const size_t& ij = observations[proposal.i][proposal.j];
     const size_t& ik = observations[proposal.i][proposal.k];
     const size_t& jk = observations[proposal.j][proposal.k];
 
-    EXPECT_DOUBLE_EQ(dataModel(proposal), (double) ik*log(mu1/mu2) + (double) jk*log(mu0/mu2) - (mu1-mu2) - (mu0-mu2));
+    EXPECT_DOUBLE_EQ(observationsModel(proposal), (double) ik*log(mu1/mu2) + (double) jk*log(mu0/mu2) - (mu1-mu2) - (mu0-mu2));
 }
 
 TEST_F(HypergraphTestCase, hyperedgeProposal_when_addEdgeOverEveryHyperedgeType) {
-    PoissonHypergraphObservationsModel dataModel(graph, parameters, observations);
+    PoissonHypergraphObservationsModel observationsModel(graph, parameters, observations);
 
     const size_t i(0), j(3), k(4);
     const size_t& ij = observations[i][j];
     const size_t& ik = observations[i][k];
     const size_t& jk = observations[j][k];
 
-    EXPECT_DOUBLE_EQ(dataModel({ ADD, FourStepsHypergraphProposal::EDGE, i, j, -1 }), 0);
-    EXPECT_DOUBLE_EQ(dataModel({ ADD, FourStepsHypergraphProposal::EDGE, i, k, -1 }), 0);
-    EXPECT_DOUBLE_EQ(dataModel({ ADD, FourStepsHypergraphProposal::EDGE, j, k, -1 }), (double) jk*log(mu1/mu0) - (mu1-mu0));
+    EXPECT_DOUBLE_EQ(observationsModel({ ADD, FourStepsHypergraphProposal::EDGE, i, j, -1 }), 0);
+    EXPECT_DOUBLE_EQ(observationsModel({ ADD, FourStepsHypergraphProposal::EDGE, i, k, -1 }), 0);
+    EXPECT_DOUBLE_EQ(observationsModel({ ADD, FourStepsHypergraphProposal::EDGE, j, k, -1 }), (double) jk*log(mu1/mu0) - (mu1-mu0));
 }
 
 TEST_F(HypergraphTestCase, hyperedgeProposal_when_removeEdgeCoveredOrNotByTriangle) {
-    PoissonHypergraphObservationsModel dataModel(graph, parameters, observations);
+    PoissonHypergraphObservationsModel observationsModel(graph, parameters, observations);
 
     const size_t i(0), j(3), k(4);
     const size_t& ij = observations[i][j];
     const size_t& ik = observations[i][k];
     const size_t& jk = observations[j][k];
 
-    EXPECT_DOUBLE_EQ(dataModel({ REMOVE, FourStepsHypergraphProposal::EDGE, i, j, -1 }), 0);
-    EXPECT_DOUBLE_EQ(dataModel({ REMOVE, FourStepsHypergraphProposal::EDGE, i, k, -1 }), (double) ik*log(mu0/mu1) - (mu0-mu1));
+    EXPECT_DOUBLE_EQ(observationsModel({ REMOVE, FourStepsHypergraphProposal::EDGE, i, j, -1 }), 0);
+    EXPECT_DOUBLE_EQ(observationsModel({ REMOVE, FourStepsHypergraphProposal::EDGE, i, k, -1 }), (double) ik*log(mu0/mu1) - (mu0-mu1));
 
     // This is the expected behaviour, but the scenario should not happen (unless there's an edge with multiplicity 2) and the check would cost performance
-    // EXPECT_DOUBLE_EQ(dataModel({ REMOVE, FourStepsHypergraphProposal::EDGE, j, k, -1 }), 0); 
+    // EXPECT_DOUBLE_EQ(observationsModel({ REMOVE, FourStepsHypergraphProposal::EDGE, j, k, -1 }), 0);
 }
 
 TEST_F(EdgeStrengthGraphTestCase, edgeProposal_when_addEdgeOverEveryHyperedgeType) {
-    PoissonEdgeStrengthObservationsModel dataModel(graph, parameters, observations);
+    PoissonEdgeStrengthObservationsModel observationsModel(graph, parameters, observations);
 
     const size_t i(0), j(1), k(2);
     const size_t& ij = observations[i][j];
     const size_t& ik = observations[i][k];
     const size_t& jk = observations[j][k];
 
-    EXPECT_THROW(dataModel({ ADD, {i, j} }), std::logic_error);
-    EXPECT_DOUBLE_EQ(dataModel({ ADD, {i, k} }), (double) ik*log(mu2/mu1) - (mu2-mu1));
-    EXPECT_DOUBLE_EQ(dataModel({ ADD, {j, k} }), (double) jk*log(mu1/mu0) - (mu1-mu0));
+    EXPECT_THROW(observationsModel({ ADD, {i, j} }), std::logic_error);
+    EXPECT_DOUBLE_EQ(observationsModel({ ADD, {i, k} }), (double) ik*log(mu2/mu1) - (mu2-mu1));
+    EXPECT_DOUBLE_EQ(observationsModel({ ADD, {j, k} }), (double) jk*log(mu1/mu0) - (mu1-mu0));
 }
 
 TEST_F(EdgeStrengthGraphTestCase, edgeProposal_when_removeEdgeOverEveryHyperedgeType) {
-    PoissonEdgeStrengthObservationsModel dataModel(graph, parameters, observations);
+    PoissonEdgeStrengthObservationsModel observationsModel(graph, parameters, observations);
 
     const size_t i(0), j(1), k(2);
     const size_t& ij = observations[i][j];
     const size_t& ik = observations[i][k];
     const size_t& jk = observations[j][k];
 
-    EXPECT_DOUBLE_EQ(dataModel({ REMOVE, {i, j} }), (double) ij*log(mu1/mu2) - (mu1-mu2));
-    EXPECT_DOUBLE_EQ(dataModel({ REMOVE, {i, k} }), (double) ik*log(mu0/mu1) - (mu0-mu1));
-    EXPECT_THROW(dataModel({ REMOVE, {j, k} }), std::logic_error);
+    EXPECT_DOUBLE_EQ(observationsModel({ REMOVE, {i, j} }), (double) ij*log(mu1/mu2) - (mu1-mu2));
+    EXPECT_DOUBLE_EQ(observationsModel({ REMOVE, {i, k} }), (double) ik*log(mu0/mu1) - (mu0-mu1));
+    EXPECT_THROW(observationsModel({ REMOVE, {j, k} }), std::logic_error);
 }

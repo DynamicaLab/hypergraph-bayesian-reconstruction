@@ -2,7 +2,6 @@
 
 #include "GRIT/utility.h"
 #include "GRIT/hypergraph-models/edgestrength.h"
-#include "GRIT/hypergraph-models/independent_triangles.h"
 #include "GRIT/hypergraph-models/independent_hyperedges.h"
 
 
