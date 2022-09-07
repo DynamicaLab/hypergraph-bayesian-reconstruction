@@ -11,7 +11,7 @@ raw_data/
 tmp/
 
 *.sh
-figures/
+figures/*
 !figures/README.md
 compile_commands.json
 config/observation-data
