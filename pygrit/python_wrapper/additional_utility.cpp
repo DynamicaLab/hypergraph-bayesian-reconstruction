@@ -193,6 +193,57 @@ GRIT::Hypergraph getAverageHypergraph(std::list<std::string>& fileNames) {
 }
 
 
+GRIT::Hypergraph getAverageHypergraphEdgeStrength(std::list<std::string>& fileNames) {
+    std::map<std::pair<size_t, size_t>, size_t> weakEdgeOccurences;
+    std::map<std::pair<size_t, size_t>, size_t> strongEdgeOccurences;
+
+    size_t sampleSize = fileNames.size();
+    size_t graphSize = 0;
+    for (auto& fileName: fileNames) {
+        GRIT::Hypergraph hypergraph = GRIT::Hypergraph::loadFromBinary(fileName);
+        if (graphSize == 0) {
+            graphSize = hypergraph.getSize();
+        }
+        else
+            if (graphSize != hypergraph.getSize())
+                throw std::logic_error("Hypergraph average: a hypergraph has size "+std::to_string(graphSize)+
+                        " while another has size "+std::to_string(hypergraph.getSize()));
+
+        for (size_t i=0; i<hypergraph.getSize(); i++) {
+
+            for (auto& j: hypergraph.getEdgesFrom(i)) {
+                if (i >= j.first)
+                    continue;
+
+                if (j.second == 1) {
+                    if (weakEdgeOccurences.find({i, j.first}) == weakEdgeOccurences.end())
+                        weakEdgeOccurences[{i, j.first}] = 1;
+                    else
+                        weakEdgeOccurences[{i, j.first}]++;
+                }
+                else {
+                    if (strongEdgeOccurences.find({i, j.first}) == strongEdgeOccurences.end())
+                        strongEdgeOccurences[{i, j.first}] = 1;
+                    else
+                        strongEdgeOccurences[{i, j.first}]++;
+                }
+            }
+        }
+    }
+
+    GRIT::Hypergraph averageHypergraph(graphSize);
+    for (auto& weakEdge: weakEdgeOccurences)
+        if ((double) weakEdge.second/sampleSize >= 0.5)
+            averageHypergraph.addEdge(weakEdge.first.first, weakEdge.first.second);
+
+    for (auto& strongEdge: strongEdgeOccurences)
+        if ((double) strongEdge.second/sampleSize >= 0.5)
+            averageHypergraph.addMultiedge(strongEdge.first.first, strongEdge.first.second, 2);
+
+    return averageHypergraph;
+}
+
+
 size_t getEdgeHammingDistance(const GRIT::Hypergraph& hypergraph1, const GRIT::Hypergraph& hypergraph2){
     size_t hammingDistance = 0;
     if (hypergraph1.getSize() != hypergraph2.getSize()) throw std::logic_error("Edge hamming distance: hypergraphs have different sizes");
@@ -238,4 +289,5 @@ void defineAdditionalUtils(py::module &m) {
     m.def("project_hypergraph_on_graph", &projectHypergraphOnGraph);
     m.def("generate_hypergraph_from_adjacency", &generateHypergraphFromAdjacencyMatrix);
     m.def("get_average_hypergraph", &getAverageHypergraph);
+    m.def("get_average_hypergraph_edgestrength", &getAverageHypergraphEdgeStrength);
 }
