@@ -2,7 +2,8 @@
 
 This project provides a command-line API (CLI) to generate synthetic observations and hypergraphs, generate plausible multiplex graphs and hypergraphs for an observation matrix and compute metrics on the produced inference.
 
-Implementation of the algorithms is done in C++ to maximize efficiency, but a Python interface is provided to facilitate its usage.
+Implementation of the algorithms is done in C++ to maximize efficiency, but a Python interface is provided to facilitate its usage. The workings of the algorithms are explained in the article: https://arxiv.org/abs/2208.06503. A guide to reproduce its figures is provided [here](figures/README.md).
+
 
 ## Requirements
 
@@ -31,7 +32,7 @@ make
 ```
 This project was developped under Linux in which static libraries have the ".a" extension. Depending on the operating system, it might be necessary before proceeding to change the ".a" extension in "pygrit/setup.py" (e.g. Windows uses ".lib"). The compiled library file name is required in the parameter `extra_objects=` of the `Extension` instantiation.
 
-Finally, the ``pygrit`` can be installed
+Finally, the ``pygrit`` Python module can be installed
 ```
 cd hypergraph-bayesian-reconstruction/pygrit
 pip install .
@@ -41,30 +42,31 @@ pip install .
 
 The inference algorithms are configured in configuration files located in the `config/` directory. These files allow for simplicity, flexibility and readability by combining the configuration of the algorithms in a rather small file. In order to reduce the redundancy of config files, default values are provided in `config/default.json`. If a parameter is not specified in the config file of a dataset, the default value is used.
 
-For each dataset analyzed, a configuration file must be created in one of three directories depending on the use case:
- - `config/synthetic/` [`-s`]: Analyze random observations generated from a random hypergraph
- - `config/graph-data/` [`-g`]: Analyze random observations generated from a known network
- - `config/observation-data/` [`-o`]: Use a observation matrix
+For each dataset analyzed, a configuration file must be created in one of three directories depending on its use case:
+ - `config/synthetic/` [``-s``]: Analyze synthetic observations generated from a synthetic hypergraph
+ - `config/graph-data/` [``-g``]: Analyze synthetic observations generated from a known network
+ - `config/observation-data/` [``-o``]: Use an observation matrix
 
-The flags (`-s`, `-g`, `-o`) identify which kind of analysis is performed. To know what parameters can be tweaked in the configuration file, one can look at the default config file.
+The flags (``-s``, ``-g``, ``-o``) identify which kind of analysis is performed in the scripts. To know what parameters can be tweaked in the configuration file, one can look at the default config file.
 
-Note that some parameters are required. For the `-s` flag
+Note that some parameters are required. For the ``-s`` flag
  - `vertex number`: number of vertices in the network
 
-For the `-g` flag
+For the ``-g`` flag
  - `dataset`: path to the dataset (absolute or relative to the root of the project)
- - `data format`: network format (only `"hyperedge list"` currently supported)
+ - `data format`: network format (only `"hyperedge list"` is currently supported)
  - `sep`: separation characters in hyperedge list
 
-For the `-g` flag
+For the ``-o`` flag
  - `vertex number`: number of vertices in the network
  - `dataset`: path to the dataset (absolute or relative to the root of the project)
  - `data format`: observations format (`"csv matrix"`, `"csv edgelist"` or `"csv weighted timeseries"`)
 
+Important note: when adding a new config file, make sure that its name is **unique across all the directories**. Otherwise, it will erase the other identical dataset.
 
 ## Models
 
-Three inference models are available: a hypergraph model, a multiplex graph model and a standard G(n, p) model. These models are refered as "phg" (**P**oisson **H**yper**g**raph model), "pes" (**P**oisson **E**dge **S**trength model) and "per" (**P**oisson **E**rdos-**R**enyi model).
+Three inference models are available: a hypergraph model, a categorical-graph model and a standard G(n, p) model. These models are refered as "phg" (**P**oisson **H**yper**g**raph model), "pes" (**P**oisson **E**dge **S**trength model) and "per" (**P**oisson **E**rdos-**R**enyi model).
 
 
 ## Script execution
@@ -73,9 +75,9 @@ Most scripts are ran using
 ```bash
 python script.py models [models...] ( -s | -g | -o ) config
 ```
-In this command, `models` is the list of models to process using the aforementionned names (i.e. "phg", "pes", "per"), flags `-s`, `-g` and `-o` represent the type of analysis and `config` is the name of the config file.
+In this command, ``models`` are the models to process using the aforementionned names (i.e. "phg", "pes", "per"), flags ``-s``, ``-g`` and ``-o`` represent the type of analysis and ``config`` is the name of the config file.
 
-Because some scripts are independent of the model (e.g. `generate_data.py` and `display_results/hypergraph_info.py`) their signature omits the `models` argument
+Because some scripts are independent of the model (e.g. `generate_data.py` and `display_results/hypergraph_info.py`) their signature omits the ``models`` argument
 ```bash
 python script.py ( -s | -g | -o ) config
 ```
@@ -88,26 +90,26 @@ See next section for usage examples.
 
 ## Example: Zachary's karate club dataset
 
-Here are the steps to produce a sample of Zachary's karate club and display different metrics.
+Here are the steps to produce a sample of Zachary's karate club reconstruction and to analyze it.
 
-Because the network is known, the appropriate location to place the config file is `config/graph-data/karate.json`. The associated flag is then `-g`.
+Because the network is known, the appropriate location to place the config file is `config/graph-data/karate.json`. The flag is then ``-g``.
 
-Before sampling, random observations must be generated. The algorithm and parameters used to do so are specified in the config files. In order to produce this dataset, run
+Before sampling, synthetic observations must be generated. The algorithm and parameters used to do so are specified in the config files. In order to produce this dataset, run
 ```bash
 python generate_data.py -g karate.json
 ```
-Note that hypergraphs and observations are transformed in binary files that are used by every script. This step is mendatory for any dataset.
+This script serves the puropse of transforming hypergraphs and observations to a binary format, which are used by other scripts. This step is mendatory for any dataset.
 
-The histogram of this dataset can now be viewed with
+The histogram of the pairwise observations can now be displayed with
 ```bash
 cd display_results
 python observations_distribution.py -g karate.json
 ```
-and the hypergraph metrics with
+and the hypergraph information with
 ```bash
 python hypergraph_info.py -g karate.json
 ```
-To sample the structure and parameters from this dataset for the multiplex graph model and the hypergraph model, run
+To sample the structure and parameters from this dataset for the categorical-graph model and the hypergraph model, run
 ```bash
 cd ..
 python sample.py pes phg -g karate.json
@@ -117,7 +119,7 @@ To display the parameters marginal distributions of the sample
 cd display_results
 python parameters_marginals.py pes phg -g karate.json
 ```
-To produce an animation of the structures generated and the average structure
+To view an animation of sample of structures generated and the structure estimators, run
 ```bash
 cd hypergraph_figures
 python sample_animation.py pes phg -g karate.json
