@@ -1,0 +1,21 @@
+{
+    "vertex number": 100,
+    "dataset": "datasets/hypergraphs/cm.csv",
+    "data format": "hyperedge list",
+    "sep": ", ",
+
+    "models": {
+        "phg": {
+            "mh minimum iterations": 100000,
+            "mh maximum iterations": 500000,
+            "window size": 50000,
+            "tolerance": 0.02
+        },
+        "pes": {
+            "mh minimum iterations": 100000,
+            "mh maximum iterations": 500000,
+            "window size": 50000,
+            "tolerance": 0.02
+        }
+    }
+}

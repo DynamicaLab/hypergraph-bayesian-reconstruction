@@ -13,7 +13,5 @@ tmp/
 *.sh
 figures/
 compile_commands.json
-config/*/*.json
-!config/default.json
-datasets/hypergraphs/
+config/observation-data
 overleaf-article/

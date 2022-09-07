@@ -1,0 +1,25 @@
+{
+    "vertex number": 57,
+    "dataset": "datasets/hypergraphs/plantpol.csv",
+    "data format": "hyperedge list",
+    "sep": ", ",
+
+    "synthetic generation": {
+        "remove disconnected vertices": true
+    },
+
+    "models": {
+        "phg": {
+            "mh minimum iterations": 50000,
+            "mh maximum iterations": 400000,
+            "window size": 20000,
+            "tolerance": 0.1
+        },
+        "pes": {
+            "mh minimum iterations": 20000,
+            "mh maximum iterations": 300000,
+            "window size": 10000,
+            "tolerance": 0.1
+        }
+    }
+}

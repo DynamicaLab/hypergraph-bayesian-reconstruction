@@ -1,0 +1,25 @@
+{
+    "vertex number": 34,
+    "dataset": "datasets/hypergraphs/karate.txt",
+    "data format": "hyperedge list",
+    "sep": " ",
+
+    "synthetic generation": {
+        "observation parameters": [0.01, 20, 30]
+    },
+
+    "models": {
+        "phg": {
+            "mh minimum iterations": 100000,
+            "mh maximum iterations": 1000000,
+            "window size": 20000,
+            "tolerance": 0.2
+        },
+        "pes": {
+            "mh minimum iterations": 20000,
+            "mh maximum iterations": 500000,
+            "window size": 10000,
+            "tolerance": 0.2
+        }
+    }
+}
