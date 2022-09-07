@@ -41,6 +41,8 @@ class Hypergraph : public TriangleList {
         void writeTrianglesToBinary(const std::string& fileName) const { TriangleList::writeToBinary(fileName); };
         void writeEdgesToBinary(const std::string& fileName) const;
 
+        void writeToCSV(const std::string& fileName) const;
+
         static Hypergraph loadFromBinary(const std::string& filePrefix);
 
     private:

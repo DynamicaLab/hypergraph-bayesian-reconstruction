@@ -15,11 +15,19 @@ def load_binary_hypergraph(dataset_name):
 
 
 def load_csv_hypergraph(filename, remove_disconnected_vertices=False, sep=", "):
-    hypergraph = pygrit.Hypergraph(3)
-
     with open(filename, 'r') as file_stream:
 
+        first_line = True
         for line in file_stream.readlines():
+            if first_line:
+                first_line = False
+                if line.startswith("size="):
+                    size = int(line.rstrip()[len("size="):])
+                    hypergraph = pygrit.Hypergraph(size)
+                    continue
+                else:
+                    hypergraph = pygrit.Hypergraph(3)
+
             vertices = [int(i) for i in line.split(sep)]
 
             required_size = max(vertices)+1

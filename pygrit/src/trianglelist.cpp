@@ -217,7 +217,7 @@ Edge TriangleList::getNthTriangleOfVertex(const Index& vertex, const size_t& n) 
 
 void TriangleList::writeToBinary(const string &fileName) const{
     ofstream fileStream(fileName.c_str(), ios::out | ios::binary);
-    if (!fileStream.is_open()) throw runtime_error("The file \""+fileName+"\" could not be open to save the triangle list");
+    if (!fileStream.is_open()) throw runtime_error("The file \""+fileName+"\" could not be open to save the triangle list.");
 
     // Header
     // First 64 bits contain the size
@@ -241,13 +241,12 @@ void TriangleList::writeToBinary(const string &fileName) const{
             }
         }
     }
-
-    fileStream.close();
 }
+
 
 TriangleList TriangleList::loadFromBinary(const string &fileName){
     ifstream fileStream(fileName.c_str(), ios::in | ios::binary);
-    if (!fileStream.is_open()) throw runtime_error("The file could not be open to save the triangle list");
+    if (!fileStream.is_open()) throw runtime_error("The file could not be open to save the triangle list.");
 
     // Header
     // First 64 bits contain the size

@@ -34,6 +34,7 @@ ext_modules = [
         ],
         sources=[
             "python_wrapper/additional_utility.cpp",
+            "python_wrapper/data_structures.cpp",
             "python_wrapper/hypergraph_generation.cpp",
             "python_wrapper/metrics.cpp",
             "python_wrapper/models.cpp",

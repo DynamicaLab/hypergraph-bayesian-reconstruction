@@ -181,8 +181,30 @@ void Hypergraph::writeEdgesToBinary(const std::string &fileName) const {
             }
         }
     }
+}
 
-    fileStream.close();
+void Hypergraph::writeToCSV(const std::string &fileName) const {
+    ofstream fileStream(fileName.c_str());
+    if (!fileStream.is_open()) throw runtime_error("The file \""+fileName+"\" could not be open to write the hypergraph.");
+
+    fileStream << "size=" << size << '\n';
+    for (size_t i=0; i<size; i++) {
+        for (auto& triangleNeighbours: getTrianglesFrom(i)) {
+            auto& j=triangleNeighbours.first;
+
+            if (i<j)
+                for (auto& k: triangleNeighbours.second)
+                    if (j<k)
+                        fileStream << i << ", " << j << ", " << k << '\n';
+        }
+
+        for (auto& neighbour_multiplicity_pair: adjacencyLists[i]) {
+            if (i < neighbour_multiplicity_pair.first) {
+                for (size_t m=0; m<neighbour_multiplicity_pair.second; m++)
+                    fileStream << i << ", " << neighbour_multiplicity_pair.first << '\n';
+            }
+        }
+    }
 }
 
 Hypergraph Hypergraph::loadFromBinary(const std::string& filePrefix) {

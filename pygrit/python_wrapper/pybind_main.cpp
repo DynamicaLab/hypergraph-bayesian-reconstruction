@@ -11,6 +11,7 @@ namespace py = pybind11;
 
 
 // Extern modules
+void defineDataStructures(py::module &m);
 void defineAdditionalUtils(py::module &m);
 void defineMetrics(py::module &m);
 void defineModels(py::module &m);
@@ -23,6 +24,7 @@ void seedRNG(size_t _seed) {
 }
 
 PYBIND11_MODULE(pygrit, m) {
+    defineDataStructures(m);
     defineAdditionalUtils(m);
     defineModels(m);
     defineMetrics(m);
