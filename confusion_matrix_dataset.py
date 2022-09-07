@@ -11,6 +11,8 @@ from modeling.output import create_output_directories, get_output_directory_for,
 
 
 if __name__ == "__main__":
+    observation_parameters = [0.01, 40, 50]
+
     args = ConfigurationParserWithModels().parse_args()
 
     config = get_config(args)
@@ -24,7 +26,6 @@ if __name__ == "__main__":
         raise RuntimeError("No hypergraph binary file found. Run \"generate_data.py\" before sampling.")
 
 
-    observation_parameters = config["synthetic generation", "observation parameters"]
     output_directory = os.path.join(get_output_directory_for("data", dataset_name))
     sampling_directory = os.path.join(output_directory, "tmp")
     if not os.path.isdir(sampling_directory):
