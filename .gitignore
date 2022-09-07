@@ -12,6 +12,7 @@ tmp/
 
 *.sh
 figures/
+!figures/README.md
 compile_commands.json
 config/observation-data
 overleaf-article/
