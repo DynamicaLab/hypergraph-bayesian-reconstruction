@@ -4,7 +4,7 @@ After installing the `pygrit` module, the following commands were used to genera
 
 Because some scripts produce a large number of files and super computing facilities impose a maximum number of files, the output of the algorithms can be moved to another location. This is set in the variable `main_output_directory` in ``modeling/output.py)``.
 
-The synthetic hypergraphs (e.g. SBM, CM, $\beta$-model) usec here are fixed in order to reproduce the results. However, one can generate new hypergraphs with these models. For example, for the hypergraph CM model, use
+The synthetic hypergraphs (e.g. SBM, CM, $\beta$-model) used here are fixed in order to reproduce the results. However, one can generate new hypergraphs with these models. For example, for the hypergraph CM model, use
 ```
 python generate_data.py -s miller-cm.json
 ```
@@ -16,7 +16,7 @@ and use the same tools to produce and analyze.
 ```
 python generate_data.py -g karate.json
 python sample.py pes phg -g karate.json
-cd display_results
+cd display_results/hypergraph_figures
 python average_structure.py pes phg -g karate.json
 ```
 
@@ -34,7 +34,7 @@ python confusion_matrix_summary.py pes phg -g <dataset>.json
 ### Fig. 5 and Fig. 9
 
 ```
-python generate_data.py -g karate.json
+python generate_data.py -g fixed_best.json
 mpiexec -np 100 python tendency_fixed_hypergraph.py pes phg -g fixed_best.json --mu1
 cd display_results
 python gen_tendency_data.py pes phg -g fixed_best.json --mu1
@@ -44,7 +44,7 @@ python plot_tendency_data.py pes phg -g fixed_best.json --mu1
 ### Fig. 6 and Fig. 10
 
 ```
-python generate_data.py -g karate.json
+python generate_data.py -g fixed_worst.json
 mpiexec -np 100 python tendency_fixed_hypergraph.py pes phg -g fixed_worst.json --mu1
 cd display_results
 python gen_tendency_data.py pes phg -g fixed_worst.json --mu1
@@ -54,7 +54,7 @@ python plot_tendency_data.py pes phg -g fixed_worst.json --mu1
 ### Fig. 7
 
 ```
-python generate_data.py -g karate.json
+python generate_data.py -g fixed_best.json
 mpiexec -np 100 python tendency_fixed_hypergraph.py pes phg -g fixed_best.json --mu2
 cd display_results
 python gen_tendency_data.py pes phg -g fixed_best.json --mu2
@@ -64,7 +64,7 @@ python plot_tendency_data.py pes phg -g fixed_best.json --mu2
 ### Fig. 8
 
 ```
-python generate_data.py -g karate.json
+python generate_data.py -g fixed_worst.json
 mpiexec -np 100 python tendency_fixed_hypergraph.py pes phg -g fixed_worst.json --mu2
 cd display_results
 python gen_tendency_data.py pes phg -g fixed_worst.json --mu2

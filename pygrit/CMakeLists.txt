@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 project(NetworkInferenceOfTriangleCorrelation)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17 REQUIRED)
 
 option(BUILD_TESTS "build gtest unit tests" OFF)
 
@@ -16,8 +16,33 @@ include_directories(include)
 
 add_subdirectory(src)
 
+if(SKBUILD)
+    # Scikit-Build does not add your site-packages to the search path
+    # automatically, so we need to add it _or_ the pybind11 specific directory
+    # here.
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" -c
+            "import pybind11; print(pybind11.get_cmake_dir())"
+        OUTPUT_VARIABLE _tmp_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ECHO STDOUT
+    )
+    list(APPEND CMAKE_PREFIX_PATH "${_tmp_dir}")
+
+    find_package(pybind11 REQUIRED)
+
+
+    file(GLOB_RECURSE BINDING_SRC "${PROJECT_SOURCE_DIR}/python_wrapper/*.cpp")
+    file(GLOB_RECURSE INFERENCE_MODELS_SRC "${PROJECT_SOURCE_DIR}/src/inference-models/*.cpp")
+
+    pybind11_add_module(pygrit MODULE ${BINDING_SRC} ${INFERENCE_MODELS_SRC})
+
+    target_link_libraries(pygrit PRIVATE GRIT)
+    set_target_properties(pygrit PROPERTIES LIBRARY_OUTPUT_DIRECTORY ./pygrit)
+    install(TARGETS pygrit DESTINATION ./pygrit)
+endif()
+
+
 if (BUILD_TESTS)
-    set(CMAKE_CXX_STANDARD 17)
     enable_testing()
     find_package(GTest REQUIRED)
     include_directories(${GTEST_INCLUDE_DIRS})

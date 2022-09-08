@@ -7,9 +7,14 @@ Implementation of the algorithms is done in C++ to maximize efficiency, but a Py
 
 ## Requirements
 
+Core C++ library:
+- C++17 compiler
 - [CMake]
 - [Boost]
+Python module installation:
 - [pybind11]
+- [scikit-build]
+- [Mpi4py]
 
 ## Installation
 
@@ -146,3 +151,4 @@ where `N` is the number of parallel processes and `...` are the parameters of th
 [pybind11]: https://pybind11.readthedocs.io
 [SamplableSet]: https://github.com/gstonge/SamplableSet
 [Mpi4py]: https://mpi4py.readthedocs.io
+[scikit-build]: https://scikit-build.readthedocs.io/en/latest/
