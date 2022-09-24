@@ -29,17 +29,17 @@ git submodule update --init --recursive
 ```
 The SamplableSet library needs to be compiled:
 ```
-cd hypergraph-bayesian-reconstruction/pygrit/include/SamplableSet/src
+cd hypergraph-bayesian-reconstruction/_pygrit/include/SamplableSet/src
 mkdir build
 cd build
 cmake ..
 make
 ```
-This project was developped under Linux in which static libraries have the ".a" extension. Depending on the operating system, it might be necessary before proceeding to change the ".a" extension in "pygrit/setup.py" (e.g. Windows uses ".lib"). The compiled library file name is required in the parameter `extra_objects=` of the `Extension` instantiation.
+This project was developped under Linux in which static libraries have the ".a" extension. Depending on the operating system, it might be necessary before proceeding to change the ".a" extension in "_pygrit/setup.py" (e.g. Windows uses ".lib"). The compiled library file name is required in the parameter `extra_objects=` of the `Extension` instantiation.
 
-Finally, the ``pygrit`` Python module can be installed
+Finally, the ``_pygrit`` Python module can be installed
 ```
-cd hypergraph-bayesian-reconstruction/pygrit
+cd hypergraph-bayesian-reconstruction/_pygrit
 pip install .
 ```
 
