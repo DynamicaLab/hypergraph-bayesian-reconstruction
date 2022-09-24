@@ -27,7 +27,7 @@ def thread_has_responsability(task_number, rank):
     return (task_number % world_size) == rank
 
 
-observation_id_to_do = np.arange(0, 10)
+observation_id_to_do = np.arange(0, 100)
 
 
 if __name__ == "__main__":
