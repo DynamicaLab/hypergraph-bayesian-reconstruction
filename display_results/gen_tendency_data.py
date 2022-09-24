@@ -64,7 +64,7 @@ for model_name in args.models:
                 model_metrics = get_json( metric_filename )
             except FileNotFoundError:
                 warnings.warn(f"Metrics for observation {observation_id} of "
-                        "parameter={parameter_value} not found for model {model_name}.")
+                        f"parameter={parameter_value} not found for model {model_name}.")
                 continue
 
             if aggregated_metrics is None:
