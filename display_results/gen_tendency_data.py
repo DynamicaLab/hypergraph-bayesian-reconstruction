@@ -1,6 +1,7 @@
 import os, sys
 import numpy as np
 import json
+from tqdm import tqdm
 from numpy.lib.function_base import percentile
 import warnings
 
@@ -28,7 +29,7 @@ class TendencyParser(ConfigurationParserWithModels):
 
 
 args = TendencyParser().parser.parse_args()
-observations_ids = np.arange(0, 10)
+observations_ids = np.arange(0, 200)
 
 if args.o:
     raise ValueError("Observation datasets cannot be used to make this analysis.")
@@ -49,8 +50,9 @@ confusion_matrix_normalization = None
 ground_truth_proportions = None
 
 for model_name in args.models:
+    print("Computing metrics of model", model_name)
     statistics[model_name] = {}
-    for parameter_value in parameter_values:
+    for parameter_value in tqdm(parameter_values):
         aggregated_metrics = None
 
         for observation_id in observations_ids:
