@@ -14,14 +14,15 @@ args = ConfigurationParserWithModels().parser.parse_args()
 config = get_config(args)
 
 dataset_name = get_dataset_name(args)
-confusion_matrices = get_json( os.path.join(get_output_directory_for("data", dataset_name), metrics_filename) )
+output_directory = get_output_directory_for("data", dataset_name)
+results = get_json( os.path.join(output_directory, metrics_filename) )
 
-for model_name in args.models:
+for approach_name, confusion_matrices in results.items():
     summaries = []
-    for matrix in confusion_matrices[model_name]:
+    for matrix in confusion_matrices:
         m = np.array(matrix).reshape(3, 3)
         number_of_interactions = np.sum(m[1:])
         summaries.append( (number_of_interactions-m[1,1]-m[2,2])/number_of_interactions )
 
     percentiles = [25, 50, 75]
-    print(model_name, "quartiles", [f"{x:.2f}" for x in np.percentile(summaries, percentiles)])
+    print(approach_name, "quartiles", [f"{x:.2f}" for x in np.percentile(summaries, percentiles)])
