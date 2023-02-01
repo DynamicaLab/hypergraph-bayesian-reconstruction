@@ -48,21 +48,28 @@ def compute_confusion_matrix(edgetypes, hypergraph):
     return confusion_matrix
 
 
-def estimate_average_edge_types_from_graph(adjacency_matrix):
+def estimate_average_edge_types_from_graph(adjacency_matrix, sample_size=100):
     graph = gt.Graph(directed=False)
     graph.add_edge_list(np.transpose(adjacency_matrix.nonzero()))
     state = gt_inf.CliqueState(graph)
-    state.mcmc_sweep(niter=100000)
+
+    count_type2 = np.zeros_like(adjacency_matrix)
+
+    for i in range(sample_size):
+        state.mcmc_sweep(niter=50000)
+
+        for v in state.f.vertices():      # iterate through factor graph
+            if state.is_fac[v]:           # skip over factors
+                continue
+            # Verify clique occupation and is hyperedge
+            if state.x[v] == 1 and len(state.c[v])>=3:
+                for u, v in itertools.combinations(state.c[v], 2):
+                    count_type2[u, v] += 1
+                    count_type2[v, u] += 1
 
     edgetypes = np.copy(adjacency_matrix)
-    for v in state.f.vertices():      # iterate through factor graph
-        if state.is_fac[v]:           # skip over factors
-            continue
-        # Verify clique occupation and is hyperedge
-        if state.x[v] == 1 and len(state.c[v])>=3:
-            for i, j in itertools.combinations(state.c[v], 2):
-                edgetypes[i, j] = 2
-                edgetypes[j, i] = 2
+    edgetypes += count_type2>=(.5*sample_size)
+
     return edgetypes
 
 
@@ -75,7 +82,7 @@ def estimate_edge_prob(observations):
     file_dir_path = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 
     logger = logging.getLogger("cmdstanpy")
-    logger.setLevel(logging.WARNING)
+    logger.disabled = True
 
     model = CmdStanModel(stan_file=os.path.join(file_dir_path, "stan-models", "undir.stan"))
 
