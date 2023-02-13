@@ -9,7 +9,7 @@ lightgray = "#ababab"
 blue = "#386BA8"
 darkblue = "#2A5180"
 orange = "#FF9854"
-darkorange = "#B0693A"
+darkorange = "#E77325"
 red = "#A4303F"
 green = "#4E994B"
 yellow = "#F6AE2D"
@@ -33,7 +33,6 @@ rcParams["xtick.color"] = midblack
 rcParams["ytick.color"] = midblack
 
 rcParams['legend.frameon'] = 'False'
-rcParams["legend.edgecolor"] = "white"
 rcParams["legend.fontsize"] = 12
 rcParams["text.color"] = midblack
 

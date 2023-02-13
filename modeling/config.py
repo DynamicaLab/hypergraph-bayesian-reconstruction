@@ -76,11 +76,33 @@ def get_config_filename(args):
     return config_location
 
 
+def get_config_filename_from_str(experiment_type, file_name):
+    if experiment_type == "s":
+        config_subdirectory_name = "synthetic"
+    elif experiment_type == "g":
+        config_subdirectory_name = "graph-data"
+    elif experiment_type == "o":
+        config_subdirectory_name = "observation-data"
+    else:
+        raise ValueError("Program arguments don't contain the config file name")
+
+    return os.path.join(config_directory, config_subdirectory_name, file_name)
+
+
 def get_config(args):
     default_config = get_json(default_config_file)
     validate_default_config(default_config)
 
     dataset_config = get_json(get_config_filename(args))
+    validate_dataset_config(dataset_config)
+
+    return ConfigHandler(default_config, dataset_config)
+
+def get_config_from_str(file_name, experiment_type):
+    default_config = get_json(default_config_file)
+    validate_default_config(default_config)
+
+    dataset_config = get_json(get_config_filename_from_str(experiment_type, file_name))
     validate_dataset_config(dataset_config)
 
     return ConfigHandler(default_config, dataset_config)
