@@ -73,5 +73,6 @@ pyplot.ylabel(r"$P(x_{ij}| \mu_k)$")
 
 if heights[0] > 0.9:
     pyplot.yscale("log")
+    pyplot.ylim((1e-5, 1))
 pyplot.tight_layout()
 pyplot.show()

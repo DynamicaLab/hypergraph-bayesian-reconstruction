@@ -1,6 +1,6 @@
 # Hypergraph bayesian reconstruction
 
-This project provides a command-line API (CLI) to generate synthetic observations and hypergraphs, generate plausible multiplex graphs and hypergraphs for an observation matrix and compute metrics on the produced inference.
+This project provides a command-line interface (CLI) to generate synthetic observations and hypergraphs, generate plausible multiplex graphs and hypergraphs for an observation matrix and compute metrics on the produced inference.
 
 Implementation of the algorithms is done in C++ to maximize efficiency, but a Python interface is provided to facilitate its usage. The workings of the algorithms are explained in the article: https://arxiv.org/abs/2208.06503. A guide to reproduce its figures is provided [here](figures/README.md).
 
@@ -11,6 +11,7 @@ Core C++ library:
 - C++17 compiler
 - [CMake]
 - [Boost]
+
 Python module installation:
 - [pybind11]
 - [scikit-build]
