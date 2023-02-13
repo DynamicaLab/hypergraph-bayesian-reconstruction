@@ -43,12 +43,8 @@ def load_weighted_timeseries_observations(filename, vertex_number, delimiter=","
 def load_csv_edgelist_observations(filename, vertex_number, delimiter=","):
     observations = np.zeros((vertex_number, vertex_number))
 
-    with open(filename, 'r') as file_stream:
-        for line in file_stream.readlines():
-            values = line.split(delimiter)[:3]
-            i, j, xij = list(map(int, values))
-            observations[i, j] = xij
-            observations[j, i] = xij
+    i, j, x_ij = np.genfromtxt(filename, delimiter=delimiter).astype(np.int64).T
+    observations[i, j] = x_ij
     return observations.astype(np.int64)
 
 def write_observations_to_binary(observations, dataset_name):
