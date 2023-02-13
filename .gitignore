@@ -17,3 +17,5 @@ figures/*
 compile_commands.json
 config/observation-data
 overleaf-article/
+stan-models/*
+!stan-models/*.stan
