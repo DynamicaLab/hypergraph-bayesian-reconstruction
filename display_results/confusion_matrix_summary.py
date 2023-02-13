@@ -17,6 +17,7 @@ dataset_name = get_dataset_name(args)
 output_directory = get_output_directory_for("data", dataset_name)
 results = get_json( os.path.join(output_directory, metrics_filename) )
 
+
 for approach_name, confusion_matrices in results.items():
     error_proportion, f1_scores = [], []
 
@@ -34,5 +35,3 @@ for approach_name, confusion_matrices in results.items():
             "\n\tError prop.\t", [f"{x:.2f}" for x in np.percentile(error_proportion, percentiles)],
             "\n\tF1 scores\t", [f"{x:.2f}" for x in np.percentile(f1_scores, percentiles)]
     )
-
-    #print(approach_name, f"{np.average(error_proportion):.2f} ± {np.std(error_proportion):.2f}") 
