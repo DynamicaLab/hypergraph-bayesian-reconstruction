@@ -18,22 +18,22 @@
 
     "models": {
         "phg": {
-            "hyperparameters": [1.1, 5, 1.1, 5, 1.05, 0.5, 1.05, 0.5, 1.05, 0.5],
+            "hyperparameters": [1.1, 5, 1.1, 5, 1.0001, 0.5, 4, 0.2, 4, 0.2],
             "mh minimum iterations": 50000,
             "mh maximum iterations": 5000000,
             "window size": 20000,
-            "tolerance": 0.001,
+            "tolerance": 0.01,
             "eta": 0.5,
             "chi_0": 0.99,
             "chi_1": 0.01,
             "move probabilities": [0.4999, 0.4999, 0.0002]
         },
         "pes": {
-            "hyperparameters": [1.1, 5, 1.1, 5, 1.05, 0.5, 1.05, 0.5, 1.05, 0.5],
+            "hyperparameters": [1.1, 5, 1.1, 5, 1.0001, 0.5, 4, 0.2, 4, 0.2],
             "mh minimum iterations": 50000,
             "mh maximum iterations": 2000000,
             "window size": 20000,
-            "tolerance": 0.001,
+            "tolerance": 0.01,
             "eta": 0.5,
             "move probabilities": [1]
         },
