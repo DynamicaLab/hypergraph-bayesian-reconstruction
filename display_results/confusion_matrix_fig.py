@@ -25,17 +25,18 @@ datasets = [
     "fixed_worst",
 ]
 
+e_delta = lambda x: f"\n($E_\\Delta={x}$)"
 dataset_clean_name = {
-    "karate": "Zachary's\nkarate club",
-    "crimes": "Crimes",
-    "prostitution": "Sexual contacts",
-    "plantpol": "Plant-pollinator",
-    "languages": "Languages",
-    "fixed_sbm": "Hypergraph SBM",
-    "fixed_cm": "Hypergraph CM",
-    "fixed_beta": "$\\beta$-model",
-    "fixed_best": "Best-case",
-    "fixed_worst": "Worst-case",
+    "karate": "Zachary's"+e_delta(0),
+    "crimes": "Crimes"+e_delta(0),
+    "prostitution": "Sexual contacts"+e_delta(0),
+    "plantpol": "Plant-pollinator"+e_delta(0.8),
+    "languages": "Languages"+e_delta(0),
+    "fixed_sbm": "Hyper. SBM"+e_delta(0.2),
+    "fixed_cm": "Hyper. CM"+e_delta(0.32),
+    "fixed_beta": "$\\beta$-model"+e_delta(0.7),
+    "fixed_best": "Best-case"+e_delta(0),
+    "fixed_worst": "Worst-case"+e_delta(1)
 }
 
 approaches_clean_name = {
@@ -90,8 +91,10 @@ for i, dataset_name in enumerate(datasets):
 
         percentiles = [25, 50, 75]
 
-        res = np.percentile(f1_scores, percentiles) if use_f1_scores else\
+        res = np.percentile(1-np.array(f1_scores), percentiles) if use_f1_scores else\
                 np.percentile(error_proportion, percentiles)
+
+        res = [r if r>1e-3 else 1e-3 for r in res]
 
         ax.errorbar(
                 res[1], y_pos, xerr=[[res[1]-res[0]], [res[2]-res[1]]],
@@ -117,21 +120,23 @@ for i, dataset_name in enumerate(datasets):
 
 ax.set_ylim((y_tick_pos, None))
 
-if not use_f1_scores:
-    ax.legend(
-        [lines.Line2D([], [], color=plot_setup.model_colors.get(name, plot_setup.lightgray),
-                      markerfacecolor=get_marker_color(name), markeredgecolor=get_marker_color(name),
-                      marker=approach_markers[name])
-            for name in approaches],
-        [approaches_clean_name[name] for name in approaches],
-        loc=(0.8, 0.69),
-        fontsize=12
-    )
+ax.legend(
+    [lines.Line2D([], [], color=plot_setup.model_colors.get(name, plot_setup.lightgray),
+                  markerfacecolor=get_marker_color(name), markeredgecolor=get_marker_color(name),
+                  marker=approach_markers[name])
+        for name in approaches],
+    [approaches_clean_name[name] for name in approaches],
+    #loc=(0.5, 0.),
+    bbox_to_anchor=(0.8, -.1),
+    ncol=2,
+    fontsize=12
+)
 
 ax.set_yticks(y_tick_values, y_tick_labels)
 ax.tick_params(axis='y', which='both', length=0, pad=15)
-ax.set_xlim((-.02, 1.02))
-ax.set_xlabel("F${}_1$-score" if use_f1_scores else "Error $\\epsilon$", size=14)
+ax.set_xlabel("$1-$F${}_1$-score" if use_f1_scores else "Error $\\epsilon$", size=14)
+ax.set_xscale("log")
+ax.set_xlim((None, 1.))
 
 pyplot.tight_layout()
 pyplot.savefig(os.path.join(os.getcwd(), "figures", "confusion_vis.pdf"))
