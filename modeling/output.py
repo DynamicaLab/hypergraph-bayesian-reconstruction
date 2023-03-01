@@ -36,7 +36,7 @@ def create_output_directories(dataset_name, model_names=None):
                 if not os.path.isdir(directory_path):
                     os.makedirs(directory_path)
 
-            for setup in ["varying_mu1", "varying_mu2"]:
+            for setup in ["varying_mu1", "varying_mu2", "varying_rates"]:
                 directory_path = os.path.join(get_output_directory_for("tendency", dataset_name, model_name), setup)
                 if not os.path.isdir(directory_path):
                     os.makedirs(directory_path)
@@ -114,8 +114,15 @@ def get_output_directory_for(output_type, dataset_name, model_name=None):
 
 
 def get_tendency_sampling_directory(program_args, dataset_name, model_name, parameter_value, observation_id):
-    setup_name = "varying_mu1" if program_args.mu1 else "varying_mu2"
-    varied_parameter = "mu1" if program_args.mu1 else "mu2"
+    if program_args.mu1:
+        setup_name = "varying_mu1"
+        varied_parameter = "mu1"
+    elif program_args.mu2:
+        setup_name = "varying_mu2"
+        varied_parameter = "mu2"
+    elif program_args.rates:
+        setup_name = "varying_rates"
+        varied_parameter = "lambda"
 
     return os.path.join(get_output_directory_for("tendency", dataset_name, model_name),
                         setup_name, varied_parameter+"="+str(parameter_value), "repetition"+str(observation_id))

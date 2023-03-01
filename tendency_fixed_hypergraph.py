@@ -17,9 +17,11 @@ class TendencyParser(ConfigurationParserWithModels):
         super().__init__()
         group = self.parser.add_mutually_exclusive_group(required=True)
         group.add_argument('--mu1', action="store_true",
-                            help="Vary mu1 and evaluate metric tendencies for given hypergraph")
+                            help="Vary mu1 and evaluate metric tendencies for given hypergraph.")
         group.add_argument('--mu2', action="store_true",
-                            help="Vary mu2 and evaluate metric tendencies for given hypergraph")
+                            help="Vary mu2 and evaluate metric tendencies for given hypergraph.")
+        group.add_argument('--rates', action="store_true",
+                            help="Vary both mu1 and mu2 according to the same rate r (e.g. mu1=2r, mu2=3r).")
 
 
 def thread_has_responsability(task_number, rank):
@@ -53,11 +55,20 @@ if __name__ == "__main__":
 
     if args.mu1:
         varied_parameter_values = config["tendency", "varying mu1", "mu1"]
-        parameters_values = [[config["tendency", "varying mu1", "mu0"], mu1, config["tendency", "varying mu1", "mu2"]] for mu1 in varied_parameter_values]
+        parameters_values = [[config["tendency", "varying mu1", "mu0"], mu1, config["tendency", "varying mu1", "mu2"]]
+                             for mu1 in varied_parameter_values]
     elif args.mu2:
         varied_parameter_values = config["tendency", "varying mu2", "mu2"]
-        parameters_values = [[config["tendency", "varying mu1", "mu0"], config["tendency", "varying mu2", "mu1"], mu2] for mu2 in varied_parameter_values]
+        parameters_values = [[config["tendency", "varying mu1", "mu0"], config["tendency", "varying mu2", "mu1"], mu2]
+                             for mu2 in varied_parameter_values]
+    elif args.rates:
+        mu0 = config["tendency", "varying rates", "mu0"]
+        base_mu1 = config["tendency", "varying rates", "base mu1"]
+        base_mu2 = config["tendency", "varying rates", "base mu2"]
 
+        varied_parameter_values = config["tendency", "varying rates", "lambda"]
+        parameters_values = [[mu0, base_mu1*lambda_, base_mu2*lambda_]
+                             for lambda_ in varied_parameter_values]
 
     # Generate observations
     task_id = -1
