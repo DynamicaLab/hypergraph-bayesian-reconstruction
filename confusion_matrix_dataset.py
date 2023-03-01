@@ -116,8 +116,8 @@ if __name__ == "__main__":
     ordered_mu = np.sort(observation_parameters)
     q = estimate_pes_parameters(hypergraph)
 
-    threshold1 = round(find_threshold(*ordered_mu[:2], q[0], q[1]))
-    threshold2 = round(find_threshold(*ordered_mu[1:], q[1], q[2]))
+    threshold1 = find_threshold(*ordered_mu[:2], q[0], q[1])
+    threshold2 = find_threshold(*ordered_mu[1:], q[1], q[2])
 
 
     confusion_matrices = {approach_name: []
