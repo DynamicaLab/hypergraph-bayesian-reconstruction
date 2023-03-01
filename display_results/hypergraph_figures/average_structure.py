@@ -33,9 +33,10 @@ model_number = len(args.models)
 inference_models = [models[model_name](config) for model_name in args.models]
 
 
-if ground_truth_exists:
-    fig, ax = pyplot.subplots(2, len(args.models)+(not args.o), figsize=( 4*(model_number+1)+1, 7))
+cols = len(args.models)+ground_truth_exists
+fig, ax = pyplot.subplots(2, cols, figsize=( 4*cols, 7))
 
+if ground_truth_exists:
     if args.g == "karate.json":
         vertex_positions = np.loadtxt("display_results/hypergraph_figures/karate.pos")
     else:
@@ -46,12 +47,9 @@ if ground_truth_exists:
     ax[0, 0].set_axis_off()
     ax[0, 0].set_title("Ground truth")
 
-    drawing.drawHyperedges(ground_truth, ax[1,0], vertex_positions, "projection")
+    drawing.drawHyperedges(ground_truth, ax[1, 0], vertex_positions, "projection")
     drawing.draw_vertices(ax[1, 0], vertex_positions)
     ax[1, 0].set_axis_off()
-
-else:
-    fig, ax = pyplot.subplots(2, len(args.models), figsize=( 4*model_number+1, 4))
 
 
 for i, model in enumerate(inference_models):
@@ -71,17 +69,14 @@ for i, model in enumerate(inference_models):
         # drawing.drawHyperedgeDifference(pygrit.project_hypergraph_on_graph(average_hypergraph),
                                         # pygrit.project_hypergraph_on_graph(ground_truth),
                                         # differences_ax, vertex_positions, "per")
-        map_ax = ax[1, i+1]
         average_ax = ax[0, i+1]
-
+        map_ax = ax[1, i+1]
     else:
-        map_ax = ax[1, i]
-        average_ax = ax[i]
+        average_ax = ax[0] if cols==1 else ax[1, i]
+        map_ax = ax[1] if cols==1 else ax[0, i]
 
     map_hypergraph = get_map_estimator(sample_directory, sample_size, model, observations)[0]
     drawing.drawHyperedges(map_hypergraph, map_ax, vertex_positions, model.name)
-    drawing.draw_vertices(map_ax, vertex_positions)
-
     drawing.draw_vertices(map_ax, vertex_positions)
     map_ax.set_axis_off()
 
@@ -90,16 +85,20 @@ for i, model in enumerate(inference_models):
     average_ax.set_axis_off()
     average_ax.set_title(model.complete_name)
 
-ymax = np.max(vertex_positions[:, 1])
-xmin = np.min(vertex_positions[:, 0])
-ax[0, 0].text(xmin, ymax, "Average", ha="right")
-ax[1, 0].text(xmin, ymax, "MAP", ha="right")
+ymin, ymax = np.max(vertex_positions[:, 1]), np.max(vertex_positions[:, 1])
+xmin, xmax = np.min(vertex_positions[:, 0]), np.max(vertex_positions[:, 0])
+
+first_average_row = ax[0] if cols==1 else ax[0, 0]
+first_map_row = ax[1] if cols==1 else ax[1, 0]
+
+first_average_row.text(xmin-.2*(xmax-xmin), ymax, "Average", ha="left")
+first_map_row.text(xmin-.2*(xmax-xmin), ymax, "MAP", ha="left")
 
 figures_directory = plot_setup.get_figure_dir(dataset_name)
 if not os.path.isdir(figures_directory):
     os.mkdir(figures_directory)
 
 pyplot.axis("off")
-pyplot.subplots_adjust(left=.05, right=1, bottom=0, top=.9, wspace=0.05, hspace=0.05)
-pyplot.savefig(figures_directory+f"/{dataset_name}_average_hypergraph.pdf", bbox_inches='tight')
+pyplot.subplots_adjust(left=.06, right=1, bottom=0, top=1, wspace=0.07, hspace=0.2)
+pyplot.savefig(figures_directory+f"/{dataset_name}_average_hypergraph.svg", bbox_inches='tight')
 pyplot.show()
