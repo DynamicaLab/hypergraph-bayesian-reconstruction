@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from numpy.core.numeric import NaN
 from numpy.lib.twodim_base import triu_indices
@@ -50,6 +51,7 @@ class PairwiseObservationsAverage:
 
     def get_metric(self):
         return self.metric
+
 
 class DiscrepancyPValue:
     name = "discrepancy p-value"
@@ -164,6 +166,26 @@ class WAIC:
         return 2*(p_waic2-llpd)
 
 
+class PosteriorObervationsCounts:
+    name = "posterior observations counts"
+
+    def __init__(self):
+        self.bincounts = {}
+
+    def setup(self, hypergraph, parameters):
+        pass
+
+    def compute_with(self, posterior_observations):
+        for i, j in zip(*np.triu_indices_from(posterior_observations)):
+            value = posterior_observations[i, j]
+            if self.bincounts.get(value) is None:
+                self.bincounts[value] = 0
+            self.bincounts[value] += 1
+
+    def get_metric(self):
+        return self.bincounts
+
+
 def compute_and_save_all_metrics(sample_directory, observations, hypergraph_groundtruth, sample_size, inference_model, observations_per_sample, swap_edge_types):
     metrics = {
             "sample_metrics": [
@@ -230,6 +252,9 @@ def compute_metrics(sample_directory, sample_size, inference_model, observations
                     posterior_observations = inference_model.generate_observations(hypergraph, parameters)
                     compute_metrics_with(metrics["posterior_predictive_metrics"], posterior_observations)
 
-        compute_metrics_with(metrics["sample_metrics"], edgetype_probabilities, average_parameters/actual_sample_size)
+        if actual_sample_size == 0:
+            warnings.warn("No sample found to compute metrics.")
+        else:
+            compute_metrics_with(metrics["sample_metrics"], edgetype_probabilities, average_parameters/actual_sample_size)
 
     return { metric.name: metric.get_metric() for metric_of_type in metrics.values() for metric in metric_of_type }
