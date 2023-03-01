@@ -1,6 +1,6 @@
 import os, sys
 import numpy as np
-from matplotlib import pyplot, lines, patches
+from matplotlib import pyplot, lines, patches, rcParams
 from scipy import stats
 
 import plot_setup
@@ -10,13 +10,17 @@ from modeling.config import GenericConfigurationParser, get_dataset_name, get_co
 from modeling.output import get_output_directory_for, observations_filename, get_sample_files
 from generation.observations_generation import load_binary_observations
 
+
 os.chdir("../")
+
+#rcParams["axes.spines.left"] = False
 
 class ConfigurationParserWithOptionalModels(GenericConfigurationParser):
     def __init__(self):
         super().__init__()
         self.parser.add_argument(type=str, dest="models",
                 help="Models to process", nargs="*", default=[])
+        self.parser.add_argument("--matrix", help="Show observation matrix", action="store_true")
 
 args = ConfigurationParserWithOptionalModels().parser.parse_args()
 dataset_name = get_dataset_name(args)
@@ -28,8 +32,24 @@ sample_size = config["sampling", "sample size"]
 
 observations = load_binary_observations(dataset_name)
 
+
+figure_output_dir = plot_setup.get_figure_dir(dataset_name)
+if not os.path.isdir(figure_output_dir):
+    os.mkdir(figure_output_dir)
+
+if args.matrix and args.o == "dolphins.json":
+    pyplot.imshow(observations, cmap="binary", origin="lower")
+    pyplot.colorbar()
+    pyplot.ylabel("Dolphin")
+    pyplot.xlabel("Dolphin")
+    pyplot.savefig(figure_output_dir+f"/dolphins_matrix.svg", bbox_inches='tight')
+    pyplot.show()
+    exit()
+
+pyplot.figure(figsize=(6, 5))
 bins = np.arange(0, np.max(observations))-.5
-heights = pyplot.hist(observations.flatten(), bins=bins, density=True, color=plot_setup.lightgray)[0]
+heights = pyplot.hist(observations.flatten(), bins=bins, density=True, color="#EBEBEB",
+                      edgecolor="#8e8e8e" if inference_models==[] else None)[0]
 xvalues = np.arange(0, bins[-1])
 
 linestyles = ['-', "-.", ":"]
@@ -68,11 +88,15 @@ if inference_models != []:
         legend[1].append(model.complete_name)
     pyplot.legend(*legend)
 
-pyplot.xlabel("$x_{ij}$")
-pyplot.ylabel(r"$P(x_{ij}| \mu_k)$")
+pyplot.xlabel("Pairwise observations $x_{ij}$")
+# pyplot.ylabel(r"$P(x_{ij}| \mu_k)$")
 
-if heights[0] > 0.9:
-    pyplot.yscale("log")
-    pyplot.ylim((1e-5, 1))
+#if heights[0] > 0.9:
+pyplot.yscale("log")
+#pyplot.ylim((1e-5, 1))
+
+#pyplot.yticks([])
 pyplot.tight_layout()
+
+pyplot.savefig(figure_output_dir+f"/observations.svg", bbox_inches='tight')
 pyplot.show()
