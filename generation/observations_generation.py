@@ -11,7 +11,11 @@ def load_binary_observations(dataset_name):
     observations_path = os.path.join(get_output_directory_for("data", dataset_name), observations_filename)
 
     if os.path.isfile(observations_path):
-        return np.load(observations_path)
+        observations = np.load(observations_path)
+        np.fill_diagonal(observations, 0)
+        if (observations != observations.T).any():
+            raise ValueError("Binary observations are not symetric.")
+        return observations
 
 
 def load_csv_matrix_observations(filename):
@@ -45,6 +49,18 @@ def load_csv_edgelist_observations(filename, vertex_number, delimiter=","):
 
     i, j, x_ij = np.genfromtxt(filename, delimiter=delimiter).astype(np.int64).T
     observations[i, j] = x_ij
+    observations[j, i] = x_ij
+
+    row = vertex_number
+    empty_rows = 0
+    for row in range(vertex_number-1, -1, -1):
+        if np.sum(observations[row]) != 0:
+            break
+        empty_rows += 1
+    if empty_rows > 0:
+        print(f"The last {empty_rows} rows of the observation matrix are empty. If this is unintentional, "
+              f"consider changing the vertex number from {vertex_number} to {vertex_number-empty_rows}.")
+
     return observations.astype(np.int64)
 
 def write_observations_to_binary(observations, dataset_name):
