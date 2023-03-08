@@ -32,6 +32,8 @@ class TendencyParser(ConfigurationParserWithModels):
                             help="Vary mu1 and evaluate metric tendencies for given hypergraph")
         group.add_argument('--mu2', action="store_true",
                             help="Vary mu2 and evaluate metric tendencies for given hypergraph")
+        group.add_argument('--rates', action="store_true",
+                            help="Vary both mu1 and mu2 according to the same rate r (e.g. mu1=2r, mu2=3r).")
 
 
 def compute_overlap(_p1, _p2, _mu1, _mu2):
@@ -93,16 +95,27 @@ config = get_config(args)
 dataset_name = get_dataset_name(args)
 figures_directory = plot_setup.get_figure_dir(dataset_name)
 
+if args.mu1:
+    varied_parameter = r"$\mu_1$"
+    experiment_name = "mu1"
+    parameter_values = config["tendency", "varying mu1", "mu1"]
+elif args.mu2:
+    varied_parameter = r"$\mu_2$"
+    experiment_name = "mu2"
+    parameter_values = config["tendency", "varying mu2", "mu2"]
+elif args.rates:
+    varied_parameter = r"$\lambda$"
+    experiment_name = "rates"
+    parameter_values = config["tendency", "varying rates", "lambda"]
+else:
+    raise ValueError("Invalid tendency experiment type.")
+
 tendency_data = get_json(os.path.join(
                         figures_directory,
-                        f"tendency_data_mu{'1' if args.mu1 else '2'}.json"
+                        f"tendency_data_{experiment_name}.json"
                     ))
 confusion_matrix_normalization = tendency_data["confusion normalization"]
 
-if args.mu1:
-    parameter_values = config["tendency", "varying mu1", "mu1"]
-elif args.mu2:
-    parameter_values = config["tendency", "varying mu2", "mu2"]
 
 metrics_data = tendency_data["metrics"]
 metric_names = set(sum([list(metrics_data[model].keys()) for model in metrics_data], []))
@@ -111,8 +124,6 @@ metric_names = set(sum([list(metrics_data[model].keys()) for model in metrics_da
 for metric_name in metric_names:
     if metric_name == metrics.PairwiseObservationsAverage.name:
         continue
-
-    varied_parameter = "$\\mu_1$" if args.mu1 else "$\\mu_2$"
 
     fig_size = (plot_setup.fig_width, plot_setup.fig_height)
     width, height = fig_size
@@ -170,5 +181,5 @@ for metric_name in metric_names:
         pyplot.legend()
     fig.tight_layout()
     fig.subplots_adjust(hspace=.185, wspace=.285)
-    fig.savefig(figures_directory+f"/{metric_name}_{'mu1' if args.mu1 else 'mu2'}.pdf", bbox_inches='tight')
+    fig.savefig(figures_directory+f"/{metric_name}_{experiment_name}.pdf", bbox_inches='tight')
     pyplot.close()
