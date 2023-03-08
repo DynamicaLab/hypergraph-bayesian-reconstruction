@@ -26,6 +26,8 @@ class TendencyParser(ConfigurationParserWithModels):
                             help="Vary mu1 and evaluate metric tendencies for given hypergraph")
         group.add_argument('--mu2', action="store_true",
                             help="Vary mu2 and evaluate metric tendencies for given hypergraph")
+        group.add_argument('--rates', action="store_true",
+                            help="Vary both mu1 and mu2 according to the same rate r (e.g. mu1=2r, mu2=3r).")
 
 
 args = TendencyParser().parser.parse_args()
@@ -41,9 +43,16 @@ statistics = {}
 percentiles = np.array([0.025, 0.25, 0.5, 0.75, 0.975])
 
 if args.mu1:
+    experiment_name = "mu1"
     parameter_values = config["tendency", "varying mu1", "mu1"]
 elif args.mu2:
+    experiment_name = "mu2"
     parameter_values = config["tendency", "varying mu2", "mu2"]
+elif args.rates:
+    experiment_name = "rates"
+    parameter_values = config["tendency", "varying rates", "lambda"]
+else:
+    raise ValueError("Invalid tendency experiment type.")
 values_without_metrics = []
 
 confusion_matrix_normalization = None
@@ -82,7 +91,7 @@ for model_name in args.models:
                 if metric_name == metrics.ConfusionMatrix.name:
                     C = np.copy( np.array(metric_values[0]).reshape(3, 3) )
                     # swap columns 2 and 3 if multiplex model predicts no strong edge
-                    if np.sum(C[:, 2]) == 0 and model_name=="pes" and args.mu1:
+                    if np.sum(C[:, 2]) == 0 and model_name=="pes" and not args.mu2:
                         C.T[[1, 2]] = C.T[[2, 1]]
 
                     aggregated_metrics[metric_name].append(C.ravel())
@@ -150,9 +159,10 @@ figures_directory = plot_setup.get_figure_dir(dataset_name)
 if not os.path.isdir(figures_directory):
     os.makedirs(figures_directory)
 
+
 filename = os.path.join(
         figures_directory,
-        f"tendency_data_mu{'1' if args.mu1 else '2'}.json"
+        f"tendency_data_{experiment_name}.json"
     )
 
 
