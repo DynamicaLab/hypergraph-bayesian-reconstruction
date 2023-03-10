@@ -69,6 +69,8 @@ if __name__ == "__main__":
         varied_parameter_values = config["tendency", "varying rates", "lambda"]
         parameters_values = [[mu0, base_mu1*lambda_, base_mu2*lambda_]
                              for lambda_ in varied_parameter_values]
+    else:
+        raise ValueError("Unknown tendency experiment type.")
 
     # Generate observations
     task_id = -1
@@ -95,6 +97,15 @@ if __name__ == "__main__":
     task_id = -1
     for observation_parameters, varied_value in zip(parameters_values, varied_parameter_values):
         for model in inference_models:
+            if args.rates:
+                # Adjust prior average of mu1 and mu2.
+                model_hyperparameters = config["models", model.name, "hyperparameters"]
+                alpha1 = model_hyperparameters[6]
+                alpha2 = model_hyperparameters[8]
+                model_hyperparameters[7] = alpha1/parameters_values[1]
+                model_hyperparameters[9] = alpha2/parameters_values[2]
+                model.set_hyperparameters(model_hyperparameters)
+
             for observation_id in observation_id_to_do:
                 task_id += 1
                 if not thread_has_responsability(task_id, rank):
