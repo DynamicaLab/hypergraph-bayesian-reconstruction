@@ -48,6 +48,8 @@ class PER: public InferenceModel{
             modelHyperparameters(modelHyperparameters), moveProbabilities(moveProbabilities)
         {}
 
+        void setHyperparameters(const std::vector<double>& newHyperparameters) { modelHyperparameters = newHyperparameters; }
+
         double getLogLikelihood(const GRIT::Hypergraph& hypergraph, const GRIT::Parameters& parameters, const GRIT::Observations& observations) const override{
             return ::getLogLikelihood<ObservationsModel, HypergraphModel, Prior>(hypergraph, parameters, observations, modelHyperparameters);
         }

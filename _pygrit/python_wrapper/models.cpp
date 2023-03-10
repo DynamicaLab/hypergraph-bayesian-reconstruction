@@ -21,6 +21,7 @@ void defineModels(py::module &m) {
                 py::arg("eta"), py::arg("chi_0"), py::arg("chi_1"),
                 py::arg("model_hyperparameters"), py::arg("move_probabilities")
             )
+        .def("set_hyperparameters", &PHG::setHyperparameters, py::arg("hyperparameters"))
         .def("sample", &PHG::sample,
                 py::arg("sample_size"), py::arg("burnin"), py::arg("chain"),
                 py::arg("hypergraph"), py::arg("parameters"), py::arg("observations"), py::arg("output_directory")
@@ -46,6 +47,7 @@ void defineModels(py::module &m) {
                 py::arg("eta"),
                 py::arg("model_hyperparameters"), py::arg("move_probabilities")
             )
+        .def("set_hyperparameters", &PES::setHyperparameters, py::arg("hyperparameters"))
         .def("sample_hypergraph_chain", &PES::sampleHypergraphs,
                 py::arg("mh_steps"), py::arg("points"), py::arg("gibbs_iterations"),
                 py::arg("hypergraph"), py::arg("parameters"), py::arg("observations"), py::arg("output_directory")
@@ -71,6 +73,7 @@ void defineModels(py::module &m) {
                 py::arg("eta"),
                 py::arg("model_hyperparameters"), py::arg("move_probabilities")
             )
+        .def("set_hyperparameters", &PER::setHyperparameters, py::arg("hyperparameters"))
         .def("sample_hypergraph_chain", &PER::sampleHypergraphs,
                 py::arg("mh_steps"), py::arg("points"), py::arg("gibbs_iterations"),
                 py::arg("hypergraph"), py::arg("parameters"), py::arg("observations"), py::arg("output_directory")
