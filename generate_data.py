@@ -10,21 +10,19 @@ dataset_name = get_dataset_name(args)
 
 
 create_output_directories(dataset_name)
-if args.s:
-    print("Creating new random hypergraph")
-    hypergraph = generate_and_write_hypergraph(config, dataset_name)
-
-elif args.g:
-    print("Transforming existing hypergraph into binary")
-    hypergraph = transfer_hypergraph_data_to_binary(config, dataset_name)
 
 if args.s or args.g:
+    if args.s:
+        print("Creating new random hypergraph")
+        hypergraph = generate_and_write_hypergraph(config, dataset_name)
+    else:
+        print("Transforming existing hypergraph into binary")
+        hypergraph = transfer_hypergraph_data_to_binary(config, dataset_name)
+
     if hypergraph.get_size() != config["vertex number"]:
-        print(f"Warning: Generated hypergraph has size {hypergraph.get_size()} while configuration file indicates"
-                f" {config['vertex number']} vertices.")
+        print(f"Warning: Generated hypergraph has size {hypergraph.get_size()} "
+              f"while configuration file indicates {config['vertex number']} vertices.")
 
-
-if args.s or args.g:
     print("Creating new random observations")
     generate_and_write_observations(hypergraph, config, dataset_name, with_correlation=True)  # Analysed graphs are always with correlation
     print("Removing current inference and diagnosis results")
