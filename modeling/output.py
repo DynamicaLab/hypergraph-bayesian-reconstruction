@@ -202,6 +202,9 @@ def find_chains(sample_directory):
     for directory in os.listdir(sample_directory):
         if os.path.isdir(os.path.join(sample_directory, directory)) and chain_regex.match(directory):
             chains.append( int(chain_regex.search(directory).group(1)) )
+
+    if len(chains) == 0:
+        warnings.warn(f"No chain found in {sample_directory}.")
     return chains
 
 

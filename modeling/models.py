@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 import warnings
 import os
 import numpy as np
-from numpy.lib.twodim_base import triu_indices
-from scipy.special import loggamma
-from scipy import stats, optimize
+from shutil import rmtree
+
+from scipy import optimize
 
 from .output import remove_all_chains_but, chain_directory_prefix, erase_sample
 import pygrit
@@ -112,7 +112,19 @@ class InferenceModel(ABC):
                 os.mkdir(chain_directory)
 
             initial_hypergraph, initial_parameters = self._get_initial_random_variables(ground_truth, observations, mu1_smaller_mu2)
-            average_likelihood = self._sample_chain(initial_parameters, initial_hypergraph, observations, chain, chain_directory, verbose)
+
+            try:
+                average_likelihood = self._sample_chain(
+                        initial_parameters, initial_hypergraph, observations,
+                        chain, chain_directory, verbose
+                    )
+            except RuntimeError as error:
+                warnings.warn(
+                    f"Catched sampling error: \"{str(error)}\" in sampling directory {sampling_directory}. "
+                    f"Erasing chain {chain}."
+                )
+                rmtree(chain_directory)
+                continue
 
             if maximum_likelihood is None or average_likelihood > maximum_likelihood:
                 maximum_likelihood = average_likelihood
@@ -181,11 +193,15 @@ class InferenceModel(ABC):
             with warnings.catch_warnings():
                 warnings.filterwarnings(action='ignore', category=RuntimeWarning)
 
-                estimate = optimize.minimize(pygrit.get_neg_mixture_likelihood, x0=np.array([.8, .1, .1, .1, 10, 30]), bounds=np.array([(1e-8, 1e8)]*6),
-                        constraints={"type":"eq", "fun": lambda x: np.sum(x[:3])-1}, tol=1e-2, args=(occurences.astype(np.float), values.astype(np.float)))
-
+                estimate = optimize.minimize(
+                        pygrit.get_neg_mixture_likelihood,
+                        x0=np.array([.8, .1, .1, .1, 10, 30]),
+                        bounds=np.array([(1e-8, 1e8)]*6),
+                        constraints={"type":"eq", "fun": lambda x: np.sum(x[:3])-1},
+                        args=(occurences.astype(np.float), values.astype(np.float)),
+                        tol=1e-2
+                    )
             return estimate.x, -estimate.fun
-
 
         best_parameters, best_likelihood = get_estimate()
 
