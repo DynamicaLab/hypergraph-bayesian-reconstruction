@@ -102,9 +102,9 @@ if __name__ == "__main__":
                 model_hyperparameters = config["models", model.name, "hyperparameters"]
                 alpha1 = model_hyperparameters[6]
                 alpha2 = model_hyperparameters[8]
-                model_hyperparameters[7] = alpha1/parameters_values[1]
-                model_hyperparameters[9] = alpha2/parameters_values[2]
-                model.set_hyperparameters(model_hyperparameters)
+                model_hyperparameters[7] = alpha1/observation_parameters[1]
+                model_hyperparameters[9] = alpha2/observation_parameters[2]
+                model.sampler.set_hyperparameters(model_hyperparameters)
 
             for observation_id in observation_id_to_do:
                 task_id += 1
