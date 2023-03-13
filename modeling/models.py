@@ -147,8 +147,10 @@ class InferenceModel(ABC):
         with mute_output( stdout=(verbose<2) ):
             return sample()
 
-    def sample_hypergraph_chain(self, observations, ground_truth, sampling_directory, mu1_smaller_mu2, iterations=[0, 1], points=100):
-        initial_hypergraph, initial_parameters = self._get_initial_random_variables(ground_truth, observations, mu1_smaller_mu2)
+    def sample_hypergraph_chain(self, observations, ground_truth, sampling_directory,
+                                mu1_smaller_mu2, use_ground_truth, iterations=[0, 1], points=100):
+        initial_hypergraph, initial_parameters = self._get_initial_random_variables(
+                ground_truth, observations, mu1_smaller_mu2, force_ground_truth=use_ground_truth)
 
         self.sampler.sample_hypergraph_chain(
                 observations     = observations.tolist(),
@@ -161,9 +163,10 @@ class InferenceModel(ABC):
             ),
 
 
-    def _get_initial_random_variables(self, ground_truth, observations, mu1_smaller_mu2=True):
+    def _get_initial_random_variables(self, ground_truth, observations,
+                                      mu1_smaller_mu2=True, force_ground_truth=False):
 
-        if self.config["sampling", "use groundtruth"] and ground_truth is not None:
+        if force_ground_truth or (self.config["sampling", "use groundtruth"] and ground_truth is not None):
             initial_hypergraph, initial_parameters = ground_truth
         else:
             initial_hypergraph, initial_parameters = None, [None]*5

@@ -84,7 +84,7 @@ def get_config_filename_from_str(experiment_type, file_name):
     elif experiment_type == "o":
         config_subdirectory_name = "observation-data"
     else:
-        raise ValueError("Program arguments don't contain the config file name")
+        raise ValueError(f'Invalid type of data "{experiment_type}".')
 
     return os.path.join(config_directory, config_subdirectory_name, file_name)
 

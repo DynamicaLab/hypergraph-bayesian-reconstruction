@@ -233,7 +233,6 @@ def compute_metrics(sample_directory, sample_size, inference_model, observations
 
 
     for chain in find_chains(sample_directory):
-        edgetype_probabilities = get_edgetype_probabilities_of_chain(chain, sample_directory, sample_size)
         average_parameters = np.zeros(5)
         actual_sample_size = 0
 
@@ -252,6 +251,8 @@ def compute_metrics(sample_directory, sample_size, inference_model, observations
                     posterior_observations = inference_model.generate_observations(hypergraph, parameters)
                     compute_metrics_with(metrics["posterior_predictive_metrics"], posterior_observations)
 
+
+        edgetype_probabilities = get_edgetype_probabilities_of_chain(chain, sample_directory, actual_sample_size)
         if actual_sample_size == 0:
             warnings.warn("No sample found to compute metrics.")
         else:
