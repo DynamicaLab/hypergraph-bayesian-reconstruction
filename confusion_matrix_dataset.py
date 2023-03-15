@@ -32,7 +32,7 @@ def estimate_pes_parameters(hypergraph):
 
 
 def find_threshold(mu1, mu2, w1, w2):
-    return 1/(np.log(mu2)-np.log(mu1))*(mu2-mu1+np.log(w2)-np.log(w1))
+    return int(round(1/(np.log(mu2)-np.log(mu1))*(mu2-mu1-np.log(w2)+np.log(w1))))
 
 
 def compute_confusion_matrix(edgetypes, hypergraph):
