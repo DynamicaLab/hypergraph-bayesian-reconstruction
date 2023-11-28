@@ -35,7 +35,10 @@ if hypergraph is None and not args.o:
 
 for model in inference_models:
     print("Processing model " + model.complete_name)
-    sample_directory = os.path.join(get_output_directory_for("diagnosis", dataset_name, model.name), diagnosis_iteration_prefix)
+    sample_directory = os.path.join(
+            get_output_directory_for("diagnosis", dataset_name, model.name),
+            diagnosis_iteration_prefix
+        )
 
     if args.s or args.g:
         observation_parameters = config["synthetic generation", "observation parameters"]
@@ -44,6 +47,16 @@ for model in inference_models:
     else:
         known_parameters = [None]*5
 
-    model.sample_hypergraph_chain(observations, ground_truth=(hypergraph, known_parameters), sampling_directory=sample_directory, mu1_smaller_mu2=config["sampling", "mu1<mu2"],
-                                   iterations=args.iterations, points=args.points)
+    model.sample_hypergraph_chain(
+            observations, ground_truth=None,
+            sampling_directory=sample_directory,
+            mu1_smaller_mu2=config["sampling", "mu1<mu2"],
+            use_ground_truth=False, iterations=args.iterations, points=args.points
+    )
+    if not args.o:
+        model.sample_hypergraph_chain(
+                observations, ground_truth=(hypergraph, known_parameters),
+                sampling_directory=sample_directory+"gt", mu1_smaller_mu2=config["sampling", "mu1<mu2"],
+                use_ground_truth=True, iterations=args.iterations, points=args.points
+        )
     print()

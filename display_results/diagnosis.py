@@ -35,14 +35,21 @@ def autocorrelation(sequence, lags):
 os.chdir("../")
 
 
-args = ConfigurationParserWithModels().parser.parse_args()
+class DiagnosisParser(ConfigurationParserWithModels):
+    def __init__(self):
+        super().__init__()
+        self.parser.add_argument('--gt', action="store_true",
+                            help="Compare empirical to ground truth initialization. Not available with -o.")
+
+args = DiagnosisParser().parser.parse_args()
 dataset_name = get_dataset_name(args)
 config = get_config(args)
 
+if args.gt and args.o:
+    raise ValueError("Cannot compare to ground truth with -o.")
+
 inference_models = [models[model_name](config) for model_name in args.models]
 
-
-ax = None
 for model in inference_models:
     sample_location = get_output_directory_for("diagnosis", dataset_name, model.name)
     sample_directories = os.listdir(sample_location)
@@ -50,54 +57,83 @@ for model in inference_models:
 
     if len(sample_directories) == 0:
         continue
-    fig, axes = pyplot.subplots(4, len(sample_directories), figsize=(12, len(sample_directories)*4))
 
-    for j, iteration_directory in tqdm(enumerate(sample_directories)):
-        lagged_distance = []
-        distance_to_first = [0]
+    if model.name == "phg":
+        distance = pygrit.get_global_hamming_distance
+    else:
+        distance = pygrit.get_edge_hamming_distance
+
+    if args.gt:
+        sample_directories = list(filter(lambda x: get_iteration_number(x)==8, sample_directories))
+        fig, axes = pyplot.subplots(1, 1, figsize=(6, 4))
+
+        zip_distances = []
         iterations = []
-        first_sample, previous_sample = None, None
-
-        sample_files = os.listdir(os.path.join(sample_location, iteration_directory))
+        sample_files = os.listdir(os.path.join(sample_location, sample_directories[0]))
         sample_files.sort(key=get_sample_number)
 
-        for sample_element_file in tqdm(sample_files):
-            if sample_element_file.endswith("_triangles"):
-                iterations.append(get_sample_number(sample_element_file))
-                sample = pygrit.Hypergraph.load_from_binary(os.path.join(sample_location, iteration_directory, sample_element_file.removesuffix("_triangles")))
+        for sample_file in tqdm(sample_files):
+            if not sample_file.endswith("_triangles"):
+                continue
+            iterations.append(get_sample_number(sample_file))
 
-                if previous_sample is None:
-                    first_sample = sample
-                else:
-                    if model.name == "phg":
-                        distance = pygrit.get_global_hamming_distance
+            # This assumes that the same iterations were saved in both chains
+            zip_distances.append(distance(
+                pygrit.Hypergraph.load_from_binary(os.path.join(
+                    sample_location, sample_directories[0], sample_file.removesuffix("_triangles"))
+                ),
+                pygrit.Hypergraph.load_from_binary(os.path.join(
+                    sample_location, sample_directories[1], sample_file.removesuffix("_triangles"))
+                )
+            ))
+        axes.plot(iterations, zip_distances)
+        axes.set_ylabel("Hamming distance")
+        axes.set_xlabel("Iteration")
+
+    else:
+        fig, axes = pyplot.subplots(4, len(sample_directories), figsize=(12, len(sample_directories)*2))
+
+        for j, iteration_directory in tqdm(enumerate(sample_directories)):
+            lagged_distance = []
+            distance_to_first = [0]
+            iterations = []
+            first_sample, previous_sample = None, None
+
+            sample_files = os.listdir(os.path.join(sample_location, iteration_directory))
+            sample_files.sort(key=get_sample_number)
+
+            for sample_element_file in tqdm(sample_files):
+                if sample_element_file.endswith("_triangles"):
+                    iterations.append(get_sample_number(sample_element_file))
+                    sample = pygrit.Hypergraph.load_from_binary(os.path.join(sample_location, iteration_directory, sample_element_file.removesuffix("_triangles")))
+
+                    if previous_sample is None:
+                        first_sample = sample
                     else:
-                        distance = pygrit.get_edge_hamming_distance
-                    lagged_distance.append(distance(sample, previous_sample))
-                    distance_to_first.append(distance(sample, first_sample))
+                        lagged_distance.append(distance(sample, previous_sample))
+                        distance_to_first.append(distance(sample, first_sample))
 
-                previous_sample = sample
+                    previous_sample = sample
 
-            elif "likelihood" in sample_element_file:
-                likelihood = np.fromfile(os.path.join(sample_location, iteration_directory, sample_element_file), dtype=np.double)
-            elif "distances" in sample_element_file:
-                relative_distances = np.fromfile(os.path.join(sample_location, iteration_directory, sample_element_file), dtype=np.double)
+                elif "likelihood" in sample_element_file:
+                    likelihood = np.fromfile(os.path.join(sample_location, iteration_directory, sample_element_file), dtype=np.double)
+                elif "distances" in sample_element_file:
+                    relative_distances = np.fromfile(os.path.join(sample_location, iteration_directory, sample_element_file), dtype=np.double)
 
+            axes[0, j].plot(iterations, distance_to_first)
+            axes[1, j].plot(iterations[1:], lagged_distance)
+            axes[0, j].set_title(f"At Gibbs iteration {iteration_directory[-1]}")
+            axes[-1, j].set_xlabel("Iteration")
 
-        axes[0, j].plot(iterations, distance_to_first)
-        axes[1, j].plot(iterations[1:], lagged_distance)
-        axes[0, j].set_title(f"At Gibbs iteration {iteration_directory[-1]}")
-        axes[-1, j].set_xlabel("Iteration")
+            lags = np.arange(50)
+            axes[2, j].bar(lags, np.abs(autocorrelation(likelihood, lags)))
+            #axes[2, j].plot(iterations, likelihood)
+            axes[3, j].plot(iterations, relative_distances)
 
-        lags = np.arange(50)
-        axes[2, j].bar(lags, np.abs(autocorrelation(likelihood, lags)))
-        #axes[2, j].plot(iterations, likelihood)
-        axes[3, j].plot(iterations, relative_distances)
-
-    axes[0, 0].set_ylabel("Distance to\nfirst sample")
-    axes[1, 0].set_ylabel("Distance to\nprevious sample")
-    axes[2, 0].set_ylabel("Likelihood\nautocorrelation")
-    axes[3, 0].set_ylabel("Relative\nlikelihood distance")
+        axes[0, 0].set_ylabel("Distance to\nfirst sample")
+        axes[1, 0].set_ylabel("Distance to\nprevious sample")
+        axes[2, 0].set_ylabel("Likelihood\nautocorrelation")
+        axes[3, 0].set_ylabel("Relative\nlikelihood distance")
 
     fig.tight_layout()
     pyplot.show()

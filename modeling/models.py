@@ -168,6 +168,10 @@ class InferenceModel(ABC):
 
         if force_ground_truth or (self.config["sampling", "use groundtruth"] and ground_truth is not None):
             initial_hypergraph, initial_parameters = ground_truth
+            initial_hypergraph = self.adjust_hypergraph(initial_hypergraph)
+            if initial_parameters[:2] == [None, None]:
+                initial_parameters[:2] = self._estimate_interaction_probs(initial_hypergraph)
+
         else:
             initial_hypergraph, initial_parameters = None, [None]*5
 
@@ -175,12 +179,19 @@ class InferenceModel(ABC):
             estimated_parameters = self._get_adjusted_parameters_estimation(observations, mu1_smaller_mu2)
             for i, (known_value, estimated_value) in enumerate(zip(initial_parameters, estimated_parameters)):
                 if known_value is None:
-                    initial_parameters[i] = estimated_value if estimated_value > 0 else 1e-6
+                    initial_parameters[i] = estimated_value
 
-            if initial_hypergraph is None:
-                initial_hypergraph = self._get_initial_hypergraph(observations)
+        if initial_hypergraph is None:
+            initial_hypergraph = self._get_initial_hypergraph(observations)
 
-        return self.adjust_hypergraph(initial_hypergraph.get_copy()), initial_parameters
+        initial_parameters = np.array(initial_parameters)
+        initial_parameters[initial_parameters==0] = 1e-8
+
+        return self.adjust_hypergraph(initial_hypergraph.get_copy()), initial_parameters.tolist()
+
+    @abstractmethod
+    def _estimate_interaction_probs(self, hypergraph):
+        pass
 
     def _get_initial_hypergraph(self, observations):
         return pygrit.generate_hypergraph_from_adjacency(observations > 2)
@@ -201,7 +212,7 @@ class InferenceModel(ABC):
                         x0=np.array([.8, .1, .1, .1, 10, 30]),
                         bounds=np.array([(1e-8, 1e8)]*6),
                         constraints={"type":"eq", "fun": lambda x: np.sum(x[:3])-1},
-                        args=(occurences.astype(np.float), values.astype(np.float)),
+                        args=(occurences.astype(np.cfloat), values.astype(np.cfloat)),
                         tol=1e-2
                     )
             return estimate.x, -estimate.fun
@@ -252,16 +263,23 @@ class PHG(InferenceModel):
     def _get_adjusted_parameters_estimation(self, observations, mu1_smaller_mu2):
         estimated_parameters = self._estimate_initial_parameters(observations)
         if mu1_smaller_mu2:
-            hyperedge_proportions = [estimated_parameters["rho"][i] for i in range(3)]
+            edgetype_proportions = [estimated_parameters["rho"][i] for i in range(3)]
             hyperedge_means       = [estimated_parameters["mu"][i] for i in range(3)]
         else:
-            hyperedge_proportions = [estimated_parameters["rho"][i] for i in [0, 2, 1]]
+            edgetype_proportions = [estimated_parameters["rho"][i] for i in [0, 2, 1]]
             hyperedge_means       = [estimated_parameters["mu"][i] for i in [0, 2, 1]]
 
-        p = (1-hyperedge_proportions[2])**(self.n-2)
-        q = hyperedge_proportions[1]*(1-hyperedge_proportions[2])
+        p = (1-edgetype_proportions[2])**(self.n-2)
+        q = edgetype_proportions[1]*(1-edgetype_proportions[2])
 
         return [p, q] + hyperedge_means
+
+    def _estimate_interaction_probs(self, hypergraph):
+        n = self.n
+        edgetypes = [[hypergraph.get_highest_order_hyperedge_with(i, j) for j in range(i+1, n)] for i in range(n-1)]
+        edgetypes_proportions = np.bincount(np.concatenate([*edgetypes]), minlength=3)*2 / (n*(n-1))
+
+        return 1-(1-edgetypes_proportions[2])**(1/(n-2)), edgetypes_proportions[1]*(1-edgetypes_proportions[2])
 
     def adjust_hypergraph(self, hypergraph):
         return hypergraph
@@ -289,6 +307,7 @@ class PES(InferenceModel):
     def get_parameter_names(self):
         return "q_1", "q_2", "\\mu_0", "\\mu_1", "\\mu_2"
 
+
     def get_edgetype_probabilities(self, parameters):
         q1, q2, *mu = parameters
         return (1-q1)*(1-q2), q1, q2
@@ -301,6 +320,12 @@ class PES(InferenceModel):
         hyperedge_means = [estimated_parameters["mu"][i] for i in range(3)]
 
         return [q1, q2] + hyperedge_means
+
+    def _estimate_interaction_probs(self, hypergraph):
+        n = hypergraph.get_size()
+        edgetypes = [[hypergraph.get_edge_multiplicity(i, j) for j in range(i+1, n)] for i in range(n-1)]
+        edgetypes_proportions = np.bincount(np.concatenate([*edgetypes]), minlength=3)*2 / (n*(n-1))
+        return edgetypes_proportions[1], edgetypes_proportions[2]
 
     def adjust_hypergraph(self, hypergraph):
         return pygrit.project_hypergraph_on_graph(hypergraph)
@@ -339,6 +364,12 @@ class PER(InferenceModel):
         hyperedge_means = [estimated_parameters["mu"][i] for i in range(2)] + [0]
 
         return [q, 0] + hyperedge_means
+
+    def _estimate_interaction_probs(self, hypergraph):
+        n = hypergraph.get_size()
+        edgetypes = [[hypergraph.get_edge_multiplicity(i, j) for j in range(i+1, n)] for i in range(n-1)]
+        edgetypes_proportions = np.bincount(np.concatenate([*edgetypes]), minlength=3)*2 / (n*(n-1))
+        return edgetypes_proportions[1], 0
 
     def adjust_hypergraph(self, hypergraph):
         return pygrit.project_hypergraph_on_graph(hypergraph)

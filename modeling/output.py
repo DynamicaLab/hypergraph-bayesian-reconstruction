@@ -50,6 +50,7 @@ def prepare_diagnosis_directories(dataset_name, model_names, iterations):
 
         for iteration in iterations:
             os.makedirs(os.path.join(directory_path, diagnosis_iteration_prefix)+str(iteration))
+            os.makedirs(os.path.join(directory_path, diagnosis_iteration_prefix)+"gt"+str(iteration))
 
 
 def remove_current_sample_tarballs(sample_directory):

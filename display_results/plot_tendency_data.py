@@ -69,11 +69,11 @@ def get_model_kwargs(model_name):
     }
 
 
-def plot_tendency(ax, xvalues, stats, **kwargs):
-    ax.plot(parameter_values, stats(mid_centile), **kwargs)
-    ax.fill_between(parameter_values, stats(lowest_centile), stats(highest_centile),
-            alpha=.2, color=color, edgecolor="none")
-    ax.fill_between(parameter_values, stats(low_centile), stats(high_centile),
+def plot_tendency(ax, xvalues, stats, max_index=-1, **kwargs):
+    ax.plot(parameter_values[:max_index], stats(mid_centile)[:max_index], **kwargs)
+    # ax.fill_between(parameter_values[:max_index], stats(lowest_centile)[:max_index], stats(highest_centile)[:max_index],
+            # alpha=.2, color=color, edgecolor="none")
+    ax.fill_between(parameter_values[:max_index], stats(low_centile)[:max_index], stats(high_centile)[:max_index],
             alpha=.5, color=color, edgecolor="none")
 
 
@@ -159,11 +159,17 @@ for metric_name in metric_names:
 
         color = plot_setup.model_colors[model_name]
 
+        max_index = -1
+        for index, p in enumerate(parameter_values):
+            if p > 20:
+                max_index = index
+                break
         if metric_name == metrics.ConfusionMatrix.name:
             for i, ax in enumerate(axes.ravel()):
                 row = i % 3
                 stat = lambda stat: np.array(metric_statistics[stat])[:, i]/confusion_matrix_normalization[row][row]
                 plot_tendency(ax, parameter_values, stat,
+                              max_index=max_index,
                                 **get_model_kwargs(model_name), clip_on=False)
                 ax.set_ylim(-0.05, 1.05)
 
@@ -171,11 +177,11 @@ for metric_name in metric_names:
         elif metric_name in [metrics.SumAbsoluteResiduals.name, metrics.SumResiduals.name]:
             for edgetype, ax in enumerate(axes):
                 stat = lambda name: np.array(metric_statistics[name])[:, edgetype]
-                plot_tendency(ax, parameter_values, stat, **get_model_kwargs(model_name))
+                plot_tendency(ax, parameter_values, stat, **get_model_kwargs(model_name), max_index=max_index)
 
         else:
             stat = lambda name: metric_statistics[name]
-            plot_tendency(axes, parameter_values, stat, **get_model_kwargs(model_name))
+            plot_tendency(axes, parameter_values, stat, **get_model_kwargs(model_name), max_index=max_index)
 
     if metric_name == "confusion summary":
         pyplot.legend()
